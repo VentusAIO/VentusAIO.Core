@@ -4,7 +4,6 @@ import com.ventus.core.network.InputStreamTypes;
 import com.ventus.core.network.Request;
 import com.ventus.core.network.Response;
 import com.ventus.core.network.Sender;
-import com.ventus.modules.adidas.AdidasConfig;
 import lombok.SneakyThrows;
 
 import java.net.Authenticator;
@@ -24,7 +23,7 @@ public class ProxyCheckerTask implements Runnable{
         String result;
 
         Request request = new Request();
-        request.setRequestProperties(AdidasConfig.getAdidas());
+//        request.setRequestProperties(AdidasConfig.getAdidas());
         request.setLink(host);
         request.setMethod("GET");
         request.setDoIn(InputStreamTypes.NONE);

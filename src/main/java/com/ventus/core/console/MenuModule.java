@@ -1,12 +1,7 @@
 package com.ventus.core.console;
-
-import javassist.NotFoundException;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class MenuModule {
     @Setter
@@ -119,14 +114,15 @@ public class MenuModule {
                     System.out.println((i++) + ". " + s);
                 }
                 System.out.println(i + ". Назад <--");
+                int scan = 0;
                 Scanner scanner = new Scanner(System.in);
-                int scan = Integer.parseInt(scanner.nextLine());
-                if (scan == i) return null;
-                if (scan < 1 || scan > i) throw new NotFoundException("Такого варианта нет");
+                try {
+                    scan = Integer.parseInt(scanner.nextLine());
+                    if (scan == i) return null;
+                }catch(Exception ignored){ }
+                if (scan < 1 || scan > i) throw new Exception("Такого варианта нет");
                 return list.get(scan - 1);
-            } catch (NotFoundException e) {
-                System.out.println(e.getMessage());
-            }catch (ArrayIndexOutOfBoundsException e){
+            } catch (ArrayIndexOutOfBoundsException e){
                 throw new ArrayIndexOutOfBoundsException(e.getMessage());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -149,13 +145,10 @@ public class MenuModule {
                 Scanner scanner = new Scanner(System.in);
                 int scan = Integer.parseInt(scanner.nextLine());
                 if (scan == i) return null;
-                if (scan < 1 || scan > i) throw new NotFoundException("Такого варианта нет");
+                if (scan < 1 || scan > i) throw new Exception("Такого варианта нет");
                 return list.get(scan - 1);
-            } catch (NotFoundException e) {
-                System.out.println(e.getMessage());
             } catch (Exception e) {
-                e.printStackTrace();
-                return null;
+                System.out.println(e.getMessage());
             }
         } while (true);
     }

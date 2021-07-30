@@ -10,4 +10,12 @@ public class Proxy implements IProxy {
     String login;
     String pass;
     ProxyStatus status;
+
+    public Proxy(String host, Integer port, String login, String pass) {
+        this.host = host;
+        this.port = port;
+        this.login = login;
+        this.pass = pass;
+        this.status = ProxyStatus.INVALID;
+    }
 }

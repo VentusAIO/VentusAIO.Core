@@ -3,6 +3,7 @@ package com.ventus.core.task;
 import com.ventus.core.interfaces.IProfile;
 import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.interfaces.ITaskGroup;
+import com.ventus.core.network.AvailabilityFilters;
 import com.ventus.core.proxy.ProxyManager;
 import lombok.Data;
 
@@ -18,6 +19,8 @@ public class TaskGroup implements ITaskGroup {
     private List<IProfile> profiles = new ArrayList<>();
     private List<IProxy> proxies = new ArrayList<>();
     private Class<? extends RequestModule> tasksType;
+    private AvailabilityFilters filter;
+    private String[] sizes;
 
     public TaskGroup() {
 
@@ -32,6 +35,8 @@ public class TaskGroup implements ITaskGroup {
             task.configureProxy(proxyManager);
             task.setProfileGroup(profiles);
             task.setItemId(itemId);
+            task.setFilter(filter);
+            task.setSizes(sizes);
             executorService.submit(task);
         }
     }

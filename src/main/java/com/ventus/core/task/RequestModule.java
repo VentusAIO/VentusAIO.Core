@@ -3,7 +3,6 @@ package com.ventus.core.task;
 import com.ventus.core.exceptions.Not200CodeException;
 import com.ventus.core.interfaces.IProfile;
 import com.ventus.core.interfaces.IProxy;
-import com.ventus.core.models.Profile;
 import com.ventus.core.network.InputStreamTypes;
 import com.ventus.core.network.Request;
 import com.ventus.core.network.Response;
@@ -22,17 +21,16 @@ import java.util.Map;
  * Шаблон для создания Request модулей
  */
 abstract public class RequestModule implements Runnable {
-
     @Getter
     private final HashMap<String, String> cookiesMap = new HashMap<>();
     protected String sessionCookies;
+    protected boolean sendCookie = true;
+    @Getter
+    StringBuilder cookieStringBuilder;
     private Sender sender = new Sender();
     private LinkedList<IProfile> profiles = new LinkedList<>();
     @Setter
     private String itemId;
-    protected boolean sendCookie = true;
-    @Getter
-    StringBuilder cookieStringBuilder;
 
     /**
      * Базовый метод для отправки запроса

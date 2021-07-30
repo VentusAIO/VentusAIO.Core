@@ -3,6 +3,7 @@ package com.ventus.core.task;
 import com.ventus.core.exceptions.Not200CodeException;
 import com.ventus.core.interfaces.IProfile;
 import com.ventus.core.interfaces.IProxy;
+import com.ventus.core.models.Profile;
 import com.ventus.core.network.InputStreamTypes;
 import com.ventus.core.network.Request;
 import com.ventus.core.network.Response;
@@ -12,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,11 +26,10 @@ abstract public class RequestModule implements Runnable {
     @Getter
     private final HashMap<String, String> cookiesMap = new HashMap<>();
     protected String sessionCookies;
-
-    protected Sender sender = new Sender();
-    protected List<IProfile> profileGroup;
+    private Sender sender = new Sender();
+    private LinkedList<IProfile> profiles = new LinkedList<>();
     @Setter
-    protected String itemId;
+    private String itemId;
     protected boolean sendCookie = true;
     @Getter
     StringBuilder cookieStringBuilder;
@@ -129,5 +130,11 @@ abstract public class RequestModule implements Runnable {
 
     public abstract void start();
 
-    protected abstract void getProfile();
+    public synchronized IProfile getProfile() {
+        return profiles.pop();
+    }
+
+    public void setProfileGroup(List<IProfile> profiles) {
+        this.profiles = new LinkedList<>(profiles);
+    }
 }

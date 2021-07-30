@@ -7,6 +7,7 @@ import com.ventus.core.proxy.ProxyManager;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -16,8 +17,8 @@ import java.util.concurrent.Executors;
 public class TaskGroup implements ITaskGroup {
     private String itemId;
     private int tasksAmount;
-    private List<IProfile> profiles = new LinkedList<>();
-    private List<IProxy> proxies = new LinkedList<>();
+    private List<IProfile> profiles = new ArrayList<>();
+    private List<IProxy> proxies = new ArrayList<>();
     private Class<? extends RequestModule> tasksType;
 
     public TaskGroup() {
@@ -31,8 +32,8 @@ public class TaskGroup implements ITaskGroup {
             proxyManager.addProxyList(proxies);
             RequestModule task = TasksFactory.getTask(tasksType);
             task.configureProxy(proxyManager);
-            task.profileGroup = profiles;
-            task.itemId = itemId;
+            task.setProfileGroup(profiles);
+            task.setItemId(itemId);
             executorService.submit(task);
         }
     }

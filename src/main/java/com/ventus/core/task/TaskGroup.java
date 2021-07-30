@@ -8,9 +8,11 @@ import com.ventus.core.proxy.ProxyManager;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Data
 public class TaskGroup implements ITaskGroup {
@@ -26,8 +28,10 @@ public class TaskGroup implements ITaskGroup {
 
     }
 
-    public void start() {
-        ExecutorService executorService = Executors.newCachedThreadPool();
+
+    public List<Future<?>> start() {
+        List<Future<?>> futures = new LinkedList<>();
+        List<Runnable> tasks = new ArrayList<>();
         for (int i = 0; i < tasksAmount; i++) {
             ProxyManager proxyManager = new ProxyManager();
             proxyManager.addProxyList(proxies);
@@ -37,7 +41,15 @@ public class TaskGroup implements ITaskGroup {
             task.setItemId(itemId);
             task.setFilter(filter);
             task.setSizes(sizes);
-            executorService.submit(task);
+            tasks.add(task);
         }
+
+        ExecutorService executorService = Executors.newCachedThreadPool();
+
+        for (Runnable task : tasks) {
+            Future<?> future = executorService.submit(task);
+            futures.add(future);
+        }
+        return futures;
     }
 }

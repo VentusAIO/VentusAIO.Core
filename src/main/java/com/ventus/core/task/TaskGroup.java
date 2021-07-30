@@ -1,78 +1,63 @@
 package com.ventus.core.task;
 
-import com.ventus.core.profile.ProfileGroup;
+import com.ventus.core.interfaces.IProfile;
+import com.ventus.core.interfaces.IProxy;
+import com.ventus.core.interfaces.ITaskGroup;
 import com.ventus.core.proxy.ProxyManager;
-import com.ventus.core.proxy.ProxyPair;
+import lombok.Builder;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-public class TaskGroup {
-
-    private List<RequestModule> tasks = new CopyOnWriteArrayList<>();
-    private ProxyManager proxyManager;
-    private Class<? extends RequestModule> tasksType;
-    private int tasksAmount;
-    private ProfileGroup profileGroup;
+@Builder
+public class TaskGroup implements ITaskGroup {
     private String pid;
+    private int tasksAmount;
+    private List<IProfile> profiles = new LinkedList<>();
+    private List<IProxy> proxies = new LinkedList<>();
+    private Class<? extends RequestModule> tasksType;
 
     TaskGroup() {
 
     }
 
-    public List<Future<?>> start() {
-        List<Future<?>> futures = new LinkedList<>();
-
-        for (int i = 0; i < tasksAmount; i++) {
-            RequestModule task = TasksFactory.getTask(tasksType);
-            task.configureProxy(proxyManager);
-            task.profileGroup = this.profileGroup;
-            task.pid = pid;
-            tasks.add(task);
-        }
-
-        ExecutorService executorService = Executors.newFixedThreadPool(8);
-
-        for (Runnable task : tasks) {
-            Future<?> future = executorService.submit(task);
-            futures.add(future);
-        }
-        return futures;
-    }
-
-    public void addProxyList(List<ProxyPair> proxies) {
-        if (proxies.isEmpty()) return;
-        proxyManager = new ProxyManager();
-        proxyManager.addProxyList(proxies);
-    }
-
-    // TODO: refactor returning value
-
-    public void setTasks(List<RequestModule> tasks) {
-        this.tasks = tasks;
-    }
-
-    public void setProxyManager(ProxyManager proxyManager) {
-        this.proxyManager = proxyManager;
-    }
-
-    public void addTasks(int tasksAmount) {
-        this.tasksAmount = tasksAmount;
-    }
-
-    public void setTasksType(Class<? extends RequestModule> tasksType) {
+    @Override
+    public void setTaskType(Class<? extends RequestModule> tasksType) {
         this.tasksType = tasksType;
     }
 
-    public void setProfileGroup(ProfileGroup profileGroup) {
-        this.profileGroup = profileGroup;
+    @Override
+    public void setProfiles(List<IProfile> profiles) {
+        this.profiles = profiles;
     }
 
-    public void setPid(String pid) {
-        this.pid = pid;
+    @Override
+    public void setProxies(List<IProxy> proxies) {
+        this.proxies = proxies;
+    }
+
+    @Override
+    public void setItemId(String id) {
+        this.pid = id;
+    }
+
+    @Override
+    public void setTasksAmount(int amount) {
+        this.tasksAmount = amount;
+    }
+
+    public void start() {
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        for (int i = 0; i < tasksAmount; i++) {
+            ProxyManager proxyManager = new ProxyManager();
+            proxyManager.addProxyList(proxies);
+            RequestModule task = TasksFactory.getTask(tasksType);
+            task.configureProxy(proxyManager);
+            task.profileGroup = profiles;
+            task.pid = pid;
+            executorService.submit(task);
+        }
     }
 }

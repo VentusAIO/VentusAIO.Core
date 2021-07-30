@@ -3,7 +3,7 @@ package com.ventus.core.exceptions;
 import lombok.Getter;
 import lombok.Setter;
 
-public class Not200CodeException extends Exception{
+public class Not200CodeException extends Exception {
 
     @Setter
     @Getter

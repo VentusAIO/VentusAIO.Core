@@ -1,42 +1,37 @@
 package com.ventus.core.task;
 
 import com.ventus.core.exceptions.Not200CodeException;
+import com.ventus.core.interfaces.IProfile;
+import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.network.InputStreamTypes;
 import com.ventus.core.network.Request;
 import com.ventus.core.network.Response;
 import com.ventus.core.network.Sender;
-import com.ventus.core.profile.ProfileGroup;
 import com.ventus.core.proxy.ProxyManager;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.net.Authenticator;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 /**
  * Шаблон для создания Request модулей
  */
-abstract public class RequestModule implements Runnable{
+abstract public class RequestModule implements Runnable {
 
     @Getter
-    private HashMap<String, String> cookiesMap = new HashMap<>();
+    private final HashMap<String, String> cookiesMap = new HashMap<>();
     protected String sessionCookies;
 
     protected Sender sender = new Sender();
-
-    @Getter
-    StringBuilder cookieStringBuilder;
-
-    protected ProfileGroup profileGroup;
-
+    protected List<IProfile> profileGroup;
     @Setter
     protected String pid;
-
     protected boolean sendCookie = true;
+    @Getter
+    StringBuilder cookieStringBuilder;
 
     /**
      * Базовый метод для отправки запроса
@@ -58,7 +53,7 @@ abstract public class RequestModule implements Runnable{
         }
         if (!cookiesMap.isEmpty()) {
             for (Map.Entry<String, String> entry : cookiesMap.entrySet()) {
-                cookieStringBuilder.append(entry.getKey() + "=" + entry.getValue()).append("; ");
+                cookieStringBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("; ");
             }
             cookieStringBuilder = new StringBuilder(cookieStringBuilder.substring(0, cookieStringBuilder.length() - 2));
         }
@@ -95,7 +90,7 @@ abstract public class RequestModule implements Runnable{
             }
         }
 
-        if(response.getResponseCode() != 200 && response.getResponseCode() != 302  && response.getResponseCode() != 404){
+        if (response.getResponseCode() != 200 && response.getResponseCode() != 302 && response.getResponseCode() != 404) {
             throw new Not200CodeException(response.getResponseCode());
         }
 
@@ -111,11 +106,12 @@ abstract public class RequestModule implements Runnable{
     protected abstract void postSend(Response response) throws Exception;
 
     protected void configureProxy(ProxyManager proxyManager) {
-        Proxy proxy = proxyManager.getProxy();
-        Authenticator authenticator = proxyManager.getAuthenticator(proxy);
-        sender = new Sender((InetSocketAddress) proxy.address(), authenticator);
+        IProxy proxy = proxyManager.getProxy();
+        sender = new Sender(proxy);
         sender.setProxyManager(proxyManager);
-    };
+    }
+
+    ;
 
     private void sendAfter(String message) {
         System.out.println(message);

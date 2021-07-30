@@ -10,7 +10,7 @@ import java.util.Map;
 public class JsonParser {
 
     //Возвращает первое вхождение из Json
-    public static String getValue(String fullStr, String subStr){
+    public static String getValue(String fullStr, String subStr) {
         boolean flag = false;
         int count = 0;
         StringBuilder stringBuilder = null;
@@ -22,11 +22,11 @@ public class JsonParser {
                     count++;
                     flag = true;
                 }
-                if (flag){
+                if (flag) {
                     i++;
                     flag = false;
                 }
-                if (count == 2){
+                if (count == 2) {
                     stringBuilder.append(fullStr.charAt(i));
                 }
             }
@@ -36,11 +36,12 @@ public class JsonParser {
         }
         return stringBuilder.toString();
     }
+
     //Возвращает Map
-    public static Map<String, String> getMap(String fullStr, String subStr){
-        if(fullStr.contains(subStr)) {
+    public static Map<String, String> getMap(String fullStr, String subStr) {
+        if (fullStr.contains(subStr)) {
             int index = fullStr.indexOf(subStr) + subStr.length() + 2;
-            if(fullStr.charAt(index) != '{') return null;
+            if (fullStr.charAt(index) != '{') return null;
             Map<String, String> result = new HashMap<>();
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -50,12 +51,12 @@ public class JsonParser {
             boolean v = false;
 
             try {
-                for (int i = index+1; i < fullStr.length(); i++) {
+                for (int i = index + 1; i < fullStr.length(); i++) {
                     char c = fullStr.charAt(i);
-                    if(c == '}') break;
-                    if(isName){
-                        if(c == '"'){
-                            if(v) {
+                    if (c == '}') break;
+                    if (isName) {
+                        if (c == '"') {
+                            if (v) {
                                 name = stringBuilder.toString();
                                 stringBuilder = new StringBuilder();
                                 isName = false;
@@ -63,13 +64,12 @@ public class JsonParser {
                             v = !v;
                             continue;
                         }
-                        if(v){
+                        if (v) {
                             stringBuilder.append(c);
                         }
-                    }
-                    else{
-                        if(c == '"'){
-                            if(v) {
+                    } else {
+                        if (c == '"') {
+                            if (v) {
                                 result.put(name, stringBuilder.toString());
                                 stringBuilder = new StringBuilder();
                                 isName = true;
@@ -77,7 +77,7 @@ public class JsonParser {
                             v = !v;
                             continue;
                         }
-                        if(v){
+                        if (v) {
                             stringBuilder.append(c);
                         }
                     }
@@ -86,23 +86,22 @@ public class JsonParser {
                 e.printStackTrace();
             }
             return result;
-        }
-        else{
+        } else {
             return null;
         }
     }
 
-    public static int getIntValue(String fullStr, String subStr){
+    public static int getIntValue(String fullStr, String subStr) {
         boolean flag = false;
         byte[] fullStrBytes;
         fullStrBytes = fullStr.getBytes(StandardCharsets.UTF_8);
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            for (int i = fullStr.indexOf(subStr) + subStr.length(); i < fullStrBytes.length; i++){
-                if (fullStrBytes[i] == ','){
+            for (int i = fullStr.indexOf(subStr) + subStr.length(); i < fullStrBytes.length; i++) {
+                if (fullStrBytes[i] == ',') {
                     return Integer.parseInt((stringBuilder.toString()));
                 }
-                if (flag){
+                if (flag) {
                     stringBuilder.append((char) fullStrBytes[i]);
                 }
                 if (fullStrBytes[i] == ':') {

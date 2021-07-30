@@ -1,12 +1,13 @@
-package com.ventus.core.profile;
+package com.ventus.core.models;
 
+import com.ventus.core.interfaces.IProfile;
 import com.ventus.core.network.AvailabilityFilters;
 import lombok.Builder;
 import lombok.Data;
 
 @Builder
 @Data
-public class Profile {
+public class Profile implements IProfile {
     private String logIn;
     private String password;
     private String email;

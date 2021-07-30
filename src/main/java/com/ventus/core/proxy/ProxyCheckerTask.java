@@ -1,5 +1,6 @@
 package com.ventus.core.proxy;
 
+import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.network.InputStreamTypes;
 import com.ventus.core.network.Request;
 import com.ventus.core.network.Response;
@@ -12,10 +13,30 @@ import java.net.PasswordAuthentication;
 import java.net.ProxySelector;
 import java.net.http.HttpClient;
 
-public class ProxyCheckerTask implements Runnable{
-    private final String host;
-    private final ProxyPair proxyPair;
+public class ProxyCheckerTask implements Runnable {
+    private final IProxy proxyPair;
     private final Sender sender;
+    private final String url;
+
+    public ProxyCheckerTask(IProxy proxyPair, String url) {
+        this.url = url;
+        this.proxyPair = proxyPair;
+        this.sender = new Sender();
+        sender.setHttpClient(
+                HttpClient.newBuilder()
+                        .proxy(ProxySelector.of(new InetSocketAddress(proxyPair.getHost(), proxyPair.getPort())))
+                        .authenticator(new Authenticator() {
+                            @Override
+                            protected PasswordAuthentication getPasswordAuthentication() {
+                                return new PasswordAuthentication(
+                                        proxyPair.getLogin(),
+                                        proxyPair.getPass().toCharArray()
+                                );
+                            }
+                        })
+                        .build()
+        );
+    }
 
     @SneakyThrows
     @Override
@@ -24,34 +45,14 @@ public class ProxyCheckerTask implements Runnable{
 
         Request request = new Request();
 //        request.setRequestProperties(AdidasConfig.getAdidas());
-        request.setLink(host);
+        request.setLink(url);
         request.setMethod("GET");
         request.setDoIn(InputStreamTypes.NONE);
 
         Response response = sender.send(request);
 
-        proxyPair.status = (response.getResponseCode() == 200 || response.getResponseCode() == 302) ? ProxyStatus.VALID : ProxyStatus.INVALID;
-        result = String.format("Proxy: {%s} -- %s[%d], for host: %s", proxyPair.proxy, proxyPair.status, response.getResponseCode(), host);
+        proxyPair.setStatus(((response.getResponseCode() == 200 || response.getResponseCode() == 302) ? ProxyStatus.VALID : ProxyStatus.INVALID));
+        result = String.format("Proxy: {%s} -- %s[%d], for host: %s", proxyPair.getHost(), url, response.getResponseCode(), url);
         ProxyChecker.callback(result, proxyPair);
-    }
-
-    public ProxyCheckerTask(ProxyPair proxyPair, String host) {
-        this.proxyPair = proxyPair;
-        this.host = host;
-        this.sender = new Sender();
-        sender.setHttpClient(
-                HttpClient.newBuilder()
-                        .proxy(ProxySelector.of((InetSocketAddress) proxyPair.proxy.address()))
-                        .authenticator(new Authenticator() {
-                            @Override
-                            protected PasswordAuthentication getPasswordAuthentication() {
-                                return new PasswordAuthentication(
-                                        proxyPair.credentials.getUsername(),
-                                        proxyPair.credentials.getPassword().toCharArray()
-                                );
-                            }
-                        })
-                        .build()
-        );
     }
 }

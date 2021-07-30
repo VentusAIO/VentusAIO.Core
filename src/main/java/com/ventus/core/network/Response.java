@@ -12,13 +12,13 @@ import java.util.Map;
 @Data
 public class Response {
     /**
-     * setCookie - cookie, которые отправил сервер (ключ, значение)
-     */
-    private Map<String, String> setCookies = new HashMap<>();
-    /**
      * Хедеры, которые были в ответе сервера
      */
     Map<String, List<String>> headerFields = new HashMap<>();
+    /**
+     * setCookie - cookie, которые отправил сервер (ключ, значение)
+     */
+    private Map<String, String> setCookies = new HashMap<>();
     /**
      * Код ответа сервера
      */
@@ -30,10 +30,11 @@ public class Response {
 
     /**
      * Метод для добавления куки
-     * @param key ключ
+     *
+     * @param key   ключ
      * @param value значение
      */
-    public void addSetCookie(String key, String value){
+    public void addSetCookie(String key, String value) {
         setCookies.put(key, value);
     }
 

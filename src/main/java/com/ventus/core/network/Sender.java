@@ -1,5 +1,7 @@
 package com.ventus.core.network;
 
+import com.ventus.core.interfaces.IProxy;
+import com.ventus.core.interfaces.ISender;
 import com.ventus.core.proxy.ProxyManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,32 +31,9 @@ import java.util.zip.GZIPInputStream;
 @Slf4j
 public class Sender implements ISender {
     /**
-     * Поле, в котором будет храниться proxy
-     */
-    @Getter @Setter
-    private Proxy webProxy = null;
-
-    /**
-     * Поле для установки базового URL для конфгурации прокси
-     */
-//    private URL baseURL = null;
-    @Setter
-    private ProxyManager proxyManager;
-
-    /**
      * Builder, который формируется заранее
      */
     private static HttpClientBuilder builder = null;
-
-    /**
-     * Тип получаемых данных, если таковые надо будет получать
-     */
-    private InputStreamTypes isDoIn = null;
-
-    @Setter
-    private HttpClient httpClient;
-
-    private HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder();
 
     static {
         // global system settings to work with proxy
@@ -71,16 +50,54 @@ public class Sender implements ISender {
         }
     }
 
-    public Sender(InetSocketAddress address, Authenticator authenticator) {
-        this.webProxy = new Proxy(Proxy.Type.HTTP, address);
+    /**
+     * Поле, в котором будет храниться proxy
+     */
+    @Getter
+    @Setter
+    private IProxy proxy = null;
+    /**
+     * Поле для установки базового URL для конфгурации прокси
+     */
+//    private URL baseURL = null;
+    @Setter
+    private ProxyManager proxyManager;
+    /**
+     * Тип получаемых данных, если таковые надо будет получать
+     */
+    private InputStreamTypes isDoIn = null;
+    @Setter
+    private HttpClient httpClient;
+    private HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder();
+
+    public Sender(IProxy proxy) {
+        this.setProxy(proxy);
         httpClient = HttpClient.newBuilder()
-                .proxy(ProxySelector.of(address))
-                .authenticator(authenticator)
+                .proxy(ProxySelector.of(new InetSocketAddress(proxy.getHost(), proxy.getPort())))
+                .authenticator(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(
+                                proxy.getLogin(),
+                                proxy.getPass().toCharArray()
+                        );
+                    }
+                })
                 .build();
     }
 
-    public Sender(){
+    public Sender() {
         httpClient = HttpClient.newHttpClient();
+    }
+
+    public static void decompressGzipNio(Path source, Path target) throws IOException {
+
+        try (GZIPInputStream gis = new GZIPInputStream(
+                new FileInputStream(source.toFile()))) {
+
+            Files.copy(gis, target);
+        }
+
     }
 
     /**
@@ -91,7 +108,7 @@ public class Sender implements ISender {
      */
     public Response send(Request request) {
 
-        if(proxyManager != null) {
+        if (proxyManager != null) {
             if (request.getLink().contains("yoomoney.ru")) {
                 proxyManager.disableProxy(this);
             } else {
@@ -175,15 +192,5 @@ public class Sender implements ISender {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public static void decompressGzipNio(Path source, Path target) throws IOException {
-
-        try (GZIPInputStream gis = new GZIPInputStream(
-                new FileInputStream(source.toFile()))) {
-
-            Files.copy(gis, target);
-        }
-
     }
 }

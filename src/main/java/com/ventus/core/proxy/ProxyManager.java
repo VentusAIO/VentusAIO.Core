@@ -1,98 +1,90 @@
 package com.ventus.core.proxy;
 
+import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.network.Sender;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.*;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class ProxyManager {
-
-    private final LinkedHashMap<Proxy, Credentials> proxyCredentialsMap = new LinkedHashMap<>();
-    private final List<ProxyPair> availableProxies = new CopyOnWriteArrayList<>();
-
+    private final List<IProxy> availableProxies = new CopyOnWriteArrayList<>();
     private volatile int counter = 0;
 
     public ProxyManager() {
 
     }
 
-    public void addProxy(Proxy proxy, Credentials credentials) {
-        ProxyPair proxyPair = new ProxyPair(proxy, credentials, ProxyStatus.VALID);
-        availableProxies.add(proxyPair);
-        proxyCredentialsMap.putIfAbsent(proxy, credentials);
-    }
-
-    // tmp method, refactor later
-    public void addProxyList(List<ProxyPair> proxies) {
-        proxyCredentialsMap.putAll(proxies.stream()
-                .collect(Collectors.toMap(
-                        ProxyPair::getProxy,
-                        ProxyPair::getCredentials
-                ))
-        );
+    public void addProxyList(List<IProxy> proxies) {
         availableProxies.addAll(proxies);
     }
 
-    public void addProxy(ProxyPair proxyPair) {
-        if (proxyPair == null) {
-            return;
-        }
-        availableProxies.add(proxyPair);
-        proxyCredentialsMap.putIfAbsent(proxyPair.proxy, proxyPair.credentials);
+    public void addProxy(@NonNull Proxy proxy) {
+        availableProxies.add(proxy);
     }
 
-    public synchronized Proxy getProxy() {
-        ProxyPair proxyPair;
+    public synchronized IProxy getProxy() {
+        IProxy proxyPair;
         // TODO: add cycle exit if all proxies INVALID
         do {
             int proxyId = (int) (counter++ % availableProxies.size());
             proxyPair = availableProxies.get(proxyId);
-        } while (proxyPair.status != ProxyStatus.VALID);
-        return proxyPair.proxy;
+        } while (proxyPair.getStatus() != ProxyStatus.VALID);
+        return proxyPair;
     }
 
-    public void replaceProxy(Sender sender) {
-        if (sender.getWebProxy() == null) return;
-        Proxy proxy = sender.getWebProxy();
-        Optional<ProxyPair> proxyPair = availableProxies.stream().filter(pp -> pp.proxy == proxy).findFirst();
-        proxyPair.ifPresent(pair -> pair.status = ProxyStatus.INVALID);
+    public synchronized void replaceProxy(Sender sender) {
+        if (sender.getProxy() == null) return;
+        IProxy proxy = sender.getProxy();
+        Optional<IProxy> proxyPair = Optional.empty();
+        for (IProxy pp : availableProxies) {
+            if (pp.equals(proxy)) {
+                proxyPair = Optional.of(pp);
+                break;
+            }
+        }
+        proxyPair.ifPresent(pair -> pair.setStatus(ProxyStatus.INVALID));
 
-        Proxy proxy_new = getProxy();
-        log.info("Switching to another proxy: " + proxy.address() + " --> " + proxy_new.address());
-        sender.setWebProxy(proxy_new);
+        IProxy proxy_new = getProxy();
+        log.info("Switching to another proxy: " + proxy.getHost() + ":" + proxy.getPort() + " --> " + proxy_new.getHost() + ":" + proxy_new.getPort());
+        sender.setProxy(proxy_new);
         sender.setHttpClient(HttpClient.newBuilder()
-                .proxy(ProxySelector.of((InetSocketAddress) proxy_new.address()))
-                .authenticator(getAuthenticator(proxy_new))
+                .proxy(ProxySelector.of(new InetSocketAddress(proxy_new.getHost(), proxy_new.getPort())))
+                .authenticator(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(proxy_new.getLogin(), proxy_new.getPass().toCharArray());
+                    }
+                })
                 .build());
         counter++;
     }
 
-    public Authenticator getAuthenticator (Proxy proxy) {
-        Credentials credentials = proxyCredentialsMap.get(proxy);
-        return new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(credentials.getUsername(), credentials.getPassword().toCharArray());
-            }
-        };
-    }
-
-    public void disableProxy (Sender sender) {
+    public void disableProxy(Sender sender) {
         sender.setHttpClient(HttpClient.newHttpClient());
     }
 
-    public void enableProxy (Sender sender) {
-        Proxy proxy = sender.getWebProxy();
+    public void enableProxy(Sender sender) {
+        IProxy proxy = sender.getProxy();
         sender.setHttpClient(HttpClient.newBuilder()
-                .proxy(ProxySelector.of((InetSocketAddress) proxy.address()))
-                .authenticator(getAuthenticator(proxy))
+                .proxy(ProxySelector.of(new InetSocketAddress(proxy.getHost(), proxy.getPort())))
+                .authenticator(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(
+                                proxy.getLogin(),
+                                proxy.getPass().toCharArray()
+                        );
+                    }
+                })
                 .build());
     }
 }

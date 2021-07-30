@@ -3,6 +3,7 @@ package com.ventus.core.interfaces;
 import com.ventus.core.task.RequestModule;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 public interface ITaskGroup {
     Class<? extends RequestModule> getTasksType();
@@ -25,5 +26,5 @@ public interface ITaskGroup {
 
     void setTasksAmount(int amount);
 
-    void start();
+    List<Future<?>> start();
 }

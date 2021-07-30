@@ -13,8 +13,6 @@ public interface IProfile {
 
     String getZipcodeIndex();
 
-    String getAddress1();
-
     String getHouseNumber();
 
     String getPhoneNumber();

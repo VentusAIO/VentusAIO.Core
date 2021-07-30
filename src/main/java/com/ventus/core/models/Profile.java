@@ -13,7 +13,6 @@ public class Profile implements IProfile {
     private String city;
     private String street;
     private String zipcodeIndex;
-    private String address1;
     private String houseNumber;
     private String phoneNumber;
     private String apartmentNumber;

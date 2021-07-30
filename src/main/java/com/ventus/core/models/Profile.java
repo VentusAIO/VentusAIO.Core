@@ -7,8 +7,6 @@ import lombok.Data;
 @Builder
 @Data
 public class Profile implements IProfile {
-    private String logIn;
-    private String password;
     private String email;
     private String firstname;
     private String lastname;

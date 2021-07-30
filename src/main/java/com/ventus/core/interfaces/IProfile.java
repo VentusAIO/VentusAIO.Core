@@ -1,10 +1,6 @@
 package com.ventus.core.interfaces;
 
 public interface IProfile {
-    String getLogIn();
-
-    String getPassword();
-
     String getEmail();
 
     String getFirstname();

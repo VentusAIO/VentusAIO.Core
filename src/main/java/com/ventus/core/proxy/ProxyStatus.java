@@ -4,4 +4,5 @@ public enum ProxyStatus {
     VALID(),
     INVALID(),
     IN_PROGRESS(),
+    UNCHECKED
 }

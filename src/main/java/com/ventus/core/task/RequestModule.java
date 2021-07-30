@@ -124,6 +124,7 @@ abstract public class RequestModule implements Runnable {
             sendAfter("OK");
         } catch (Exception e) {
             sendAfter(e.getMessage());
+            e.printStackTrace();
         }
     }
 

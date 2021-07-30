@@ -2,7 +2,6 @@ package com.ventus.core.proxy;
 
 import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.network.Sender;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.Authenticator;

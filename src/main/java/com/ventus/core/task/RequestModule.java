@@ -22,15 +22,15 @@ import java.util.Map;
  */
 abstract public class RequestModule implements Runnable {
     @Getter
-    private final HashMap<String, String> cookiesMap = new HashMap<>();
+    protected final HashMap<String, String> cookiesMap = new HashMap<>();
     protected String sessionCookies;
     protected boolean sendCookie = true;
     @Getter
     StringBuilder cookieStringBuilder;
-    private Sender sender = new Sender();
-    private LinkedList<IProfile> profiles = new LinkedList<>();
+    protected Sender sender = new Sender();
+    protected LinkedList<IProfile> profiles = new LinkedList<>();
     @Setter
-    private String itemId;
+    protected String itemId;
 
     /**
      * Базовый метод для отправки запроса

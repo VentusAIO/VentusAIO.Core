@@ -3,10 +3,7 @@ package com.ventus.core.task;
 import com.ventus.core.exceptions.Not200CodeException;
 import com.ventus.core.interfaces.IProfile;
 import com.ventus.core.interfaces.IProxy;
-import com.ventus.core.network.InputStreamTypes;
-import com.ventus.core.network.Request;
-import com.ventus.core.network.Response;
-import com.ventus.core.network.Sender;
+import com.ventus.core.network.*;
 import com.ventus.core.proxy.ProxyManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,12 +22,16 @@ abstract public class RequestModule implements Runnable {
     protected final HashMap<String, String> cookiesMap = new HashMap<>();
     protected String sessionCookies;
     protected boolean sendCookie = true;
-    @Getter
-    StringBuilder cookieStringBuilder;
     protected Sender sender = new Sender();
     protected LinkedList<IProfile> profiles = new LinkedList<>();
     @Setter
     protected String itemId;
+    @Setter
+    protected AvailabilityFilters filter;
+    @Setter
+    protected String[] sizes;
+    @Getter
+    StringBuilder cookieStringBuilder;
 
     /**
      * Базовый метод для отправки запроса

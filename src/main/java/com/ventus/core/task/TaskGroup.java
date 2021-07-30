@@ -4,11 +4,9 @@ import com.ventus.core.interfaces.IProfile;
 import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.interfaces.ITaskGroup;
 import com.ventus.core.proxy.ProxyManager;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

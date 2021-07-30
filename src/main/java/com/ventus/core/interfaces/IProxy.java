@@ -15,5 +15,5 @@ public interface IProxy {
 
     ProxyStatus getStatus();
 
-    void setStatus(ProxyStatus proxyStatus);
+    void setStatus(ProxyStatus status);
 }

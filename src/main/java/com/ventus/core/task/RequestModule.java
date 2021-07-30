@@ -28,7 +28,7 @@ abstract public class RequestModule implements Runnable {
     protected Sender sender = new Sender();
     protected List<IProfile> profileGroup;
     @Setter
-    protected String pid;
+    protected String itemId;
     protected boolean sendCookie = true;
     @Getter
     StringBuilder cookieStringBuilder;

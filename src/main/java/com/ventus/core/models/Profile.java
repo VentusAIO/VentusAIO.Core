@@ -1,7 +1,6 @@
 package com.ventus.core.models;
 
 import com.ventus.core.interfaces.IProfile;
-import com.ventus.core.network.AvailabilityFilters;
 import lombok.Builder;
 import lombok.Data;
 
@@ -25,9 +24,4 @@ public class Profile implements IProfile {
     private String mm;
     private String year;
     private String cvc;
-
-    private String[] size;
-    private AvailabilityFilters filter;
-
-    private String amount;
 }

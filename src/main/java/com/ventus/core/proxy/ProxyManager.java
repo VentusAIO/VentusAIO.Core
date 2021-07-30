@@ -20,15 +20,10 @@ public class ProxyManager {
     private volatile int counter = 0;
 
     public ProxyManager() {
-
     }
 
     public void addProxyList(List<IProxy> proxies) {
         availableProxies.addAll(proxies);
-    }
-
-    public void addProxy(@NonNull Proxy proxy) {
-        availableProxies.add(proxy);
     }
 
     public synchronized IProxy getProxy() {

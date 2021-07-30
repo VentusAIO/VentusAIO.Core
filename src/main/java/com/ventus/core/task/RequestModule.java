@@ -7,6 +7,7 @@ import com.ventus.core.network.*;
 import com.ventus.core.proxy.ProxyManager;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import java.util.Map;
 /**
  * Шаблон для создания Request модулей
  */
+@Slf4j
 abstract public class RequestModule implements Runnable {
     @Getter
     protected final HashMap<String, String> cookiesMap = new HashMap<>();
@@ -124,7 +126,6 @@ abstract public class RequestModule implements Runnable {
             sendAfter("OK");
         } catch (Exception e) {
             sendAfter(e.getMessage());
-            e.printStackTrace();
         }
     }
 

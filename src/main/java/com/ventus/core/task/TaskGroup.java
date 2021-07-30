@@ -20,7 +20,7 @@ public class TaskGroup implements ITaskGroup {
     private List<IProxy> proxies = new LinkedList<>();
     private Class<? extends RequestModule> tasksType;
 
-    TaskGroup() {
+    public TaskGroup() {
 
     }
 

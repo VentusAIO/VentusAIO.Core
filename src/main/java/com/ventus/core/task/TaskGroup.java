@@ -10,6 +10,8 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -31,7 +33,7 @@ public class TaskGroup implements ITaskGroup {
 
     public List<Future<?>> start() {
         List<Future<?>> futures = new LinkedList<>();
-        List<Runnable> tasks = new ArrayList<>();
+        List<Callable<Map<?, ?>>> tasks = new ArrayList<>();
         for (int i = 0; i < tasksAmount; i++) {
             ProxyManager proxyManager = new ProxyManager();
             proxyManager.addProxyList(proxies);
@@ -46,8 +48,8 @@ public class TaskGroup implements ITaskGroup {
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 
-        for (Runnable task : tasks) {
-            Future<?> future = executorService.submit(task);
+        for (Callable<Map<?, ?>> task : tasks) {
+            Future<Map<?, ?>> future = executorService.submit(task);
             futures.add(future);
         }
         executorService.shutdown();

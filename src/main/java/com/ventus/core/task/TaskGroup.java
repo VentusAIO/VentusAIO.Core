@@ -50,6 +50,7 @@ public class TaskGroup implements ITaskGroup {
             Future<?> future = executorService.submit(task);
             futures.add(future);
         }
+        executorService.shutdown();
         return futures;
     }
 }

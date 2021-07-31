@@ -13,13 +13,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 
 /**
  * Шаблон для создания Request модулей
  */
 @Slf4j
-abstract public class RequestModule implements Runnable {
+abstract public class RequestModule implements Callable<Map<?, ?>> {
     @Getter
     protected final HashMap<String, String> cookiesMap = new HashMap<>();
     protected String sessionCookies;
@@ -113,23 +114,8 @@ abstract public class RequestModule implements Runnable {
         sender.setProxyManager(proxyManager);
     }
 
-    ;
-
-    private void sendAfter(String message) {
-        System.out.println(message);
-    }
-
     @Override
-    public void run() {
-        try {
-            start();
-            sendAfter("OK");
-        } catch (Exception e) {
-            sendAfter(e.getMessage());
-        }
-    }
-
-    public abstract void start();
+    public abstract Map<?, ?> call();
 
     public synchronized IProfile getProfile() {
         return profiles.pop();

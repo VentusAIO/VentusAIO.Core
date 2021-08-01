@@ -9,10 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 
@@ -118,6 +115,7 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     public abstract Map<?, ?> call();
 
     public synchronized IProfile getProfile() {
+        if(profiles.isEmpty()) throw new NoSuchElementException("list is empty");
         return profiles.pop();
     }
 

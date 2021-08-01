@@ -4,6 +4,7 @@ import com.ventus.core.network.AvailabilityFilters;
 import com.ventus.core.proxy.ProxyManager;
 import com.ventus.core.task.RequestModule;
 import com.ventus.core.task.TasksFactory;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,8 +16,14 @@ import java.util.concurrent.Future;
 
 public interface ITaskGroup {
     ExecutorService executorService = Executors.newCachedThreadPool();
-    Class<? extends RequestModule> tasksType = null;
-    AvailabilityFilters filter = null;
+
+    AvailabilityFilters getFilter();
+
+    void setFilter(AvailabilityFilters filter);
+
+    Class<? extends RequestModule> getTasksType();
+
+    void setTasksType(Class<? extends RequestModule> taskType);
 
     List<IProfile> getProfiles();
 
@@ -35,11 +42,11 @@ public interface ITaskGroup {
         for (int i = 0; i < getAmount(); i++) {
             ProxyManager proxyManager = new ProxyManager();
             proxyManager.addProxyList(getProxies());
-            RequestModule task = TasksFactory.getTask(tasksType);
+            RequestModule task = TasksFactory.getTask(getTasksType());
             task.configureProxy(proxyManager);
             task.setProfileGroup(getProfiles());
             task.setItemId(getItemId());
-            task.setFilter(filter);
+            task.setFilter(getFilter());
             task.setSizes(getSizes());
             tasks.add(task);
         }
@@ -51,7 +58,7 @@ public interface ITaskGroup {
         return futures;
     }
 
-    default void stop(){
+    default void stop() {
         executorService.shutdownNow();
     }
 }

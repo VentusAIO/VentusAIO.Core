@@ -12,12 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public interface ITaskGroup {
-    ExecutorService executorService = Executors.newCachedThreadPool();
-
     AvailabilityFilters getFilter();
 
     void setFilter(AvailabilityFilters filter);
@@ -31,6 +28,8 @@ public interface ITaskGroup {
     List<IProxy> getProxies();
 
     String getItemId();
+
+    ExecutorService getExecutorService();
 
     String[] getSizes();
 
@@ -55,14 +54,14 @@ public interface ITaskGroup {
             tasks.add(task);
         }
         for (Callable<Map<?, ?>> task : tasks) {
-            Future<Map<?, ?>> future = executorService.submit(task);
+            Future<Map<?, ?>> future = getExecutorService().submit(task);
             futures.add(future);
         }
-        executorService.shutdown();
+        getExecutorService().shutdown();
         return futures;
     }
 
     default void stop() {
-        executorService.shutdownNow();
+        getExecutorService().shutdownNow();
     }
 }

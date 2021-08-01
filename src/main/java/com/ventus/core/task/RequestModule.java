@@ -3,6 +3,7 @@ package com.ventus.core.task;
 import com.ventus.core.exceptions.Not200CodeException;
 import com.ventus.core.interfaces.IProfile;
 import com.ventus.core.interfaces.IProxy;
+import com.ventus.core.models.ProfileManager;
 import com.ventus.core.network.*;
 import com.ventus.core.proxy.ProxyManager;
 import lombok.Getter;
@@ -23,7 +24,7 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     protected String sessionCookies;
     protected boolean sendCookie = true;
     protected Sender sender = new Sender();
-    protected LinkedList<IProfile> profiles = new LinkedList<>();
+
     @Setter
     protected String itemId;
     @Setter
@@ -32,6 +33,7 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     protected String[] sizes;
     @Getter
     StringBuilder cookieStringBuilder;
+    private ProfileManager profileManager;
 
     /**
      * Базовый метод для отправки запроса
@@ -115,11 +117,12 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     public abstract Map<?, ?> call();
 
     public synchronized IProfile getProfile() {
-        if(profiles.isEmpty()) throw new NoSuchElementException("list is empty");
-        return profiles.pop();
+        IProfile profile = profileManager.getProfile();
+        if(profile == null) throw new NoSuchElementException("list is empty");
+        return profile;
     }
 
-    public void setProfileGroup(List<IProfile> profiles) {
-        this.profiles = new LinkedList<>(profiles);
+    public void setProfileManger(ProfileManager profileManager){
+        this.profileManager = profileManager;
     }
 }

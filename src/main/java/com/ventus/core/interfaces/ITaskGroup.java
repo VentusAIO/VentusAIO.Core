@@ -39,15 +39,21 @@ public interface ITaskGroup {
     default List<Future<?>> start() {
         List<Future<?>> futures = new LinkedList<>();
         List<Callable<Map<?, ?>>> tasks = new ArrayList<>();
+
+        ProxyManager proxyManager = new ProxyManager();
+        proxyManager.addProxyList(getProxies());
+
+        ProfileManager profileManager = new ProfileManager(getProfiles());
+
+
         for (int i = 0; i < getAmount(); i++) {
-            ProxyManager proxyManager = new ProxyManager();
-            proxyManager.addProxyList(getProxies());
-
-            ProfileManager profileManager = new ProfileManager(getProfiles());
-
             RequestModule task = TasksFactory.getTask(getTasksType());
+
+
             task.configureProxy(proxyManager);
             task.setProfileManger(profileManager);
+
+
             task.setItemId(getItemId());
             task.setFilter(getFilter());
             task.setSizes(getSizes());

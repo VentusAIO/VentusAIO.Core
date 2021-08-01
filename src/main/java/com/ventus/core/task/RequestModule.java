@@ -105,7 +105,7 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
      */
     protected abstract void postSend(Response response) throws Exception;
 
-    protected void configureProxy(ProxyManager proxyManager) {
+    public void configureProxy(ProxyManager proxyManager) {
         IProxy proxy = proxyManager.getProxy();
         sender = new Sender(proxy);
         sender.setProxyManager(proxyManager);

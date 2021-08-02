@@ -1,5 +1,6 @@
 package com.ventus.core.interfaces;
 
+import com.ventus.core.models.AccountManager;
 import com.ventus.core.models.ProfileManager;
 import com.ventus.core.network.AvailabilityFilters;
 import com.ventus.core.proxy.ProxyManager;
@@ -23,6 +24,8 @@ public interface ITaskGroup {
 
     List<IProfile> getProfiles();
 
+    List<IAccount> getAccounts();
+
     List<IProxy> getProxies();
 
     String getItemId();
@@ -42,6 +45,7 @@ public interface ITaskGroup {
         proxyManager.addProxyList(getProxies());
 
         ProfileManager profileManager = new ProfileManager(getProfiles());
+        AccountManager accountManager = new AccountManager(getAccounts());
 
 
         for (int i = 0; i < getAmount(); i++) {
@@ -50,6 +54,7 @@ public interface ITaskGroup {
 
             task.configureProxy(proxyManager);
             task.setProfileManger(profileManager);
+            task.setAccountManger(accountManager);
 
 
             task.setItemId(getItemId());

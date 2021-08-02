@@ -1,8 +1,10 @@
 package com.ventus.core.task;
 
 import com.ventus.core.exceptions.Not200CodeException;
+import com.ventus.core.interfaces.IAccount;
 import com.ventus.core.interfaces.IProfile;
 import com.ventus.core.interfaces.IProxy;
+import com.ventus.core.models.AccountManager;
 import com.ventus.core.models.ProfileManager;
 import com.ventus.core.network.*;
 import com.ventus.core.proxy.ProxyManager;
@@ -34,6 +36,7 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     @Getter
     StringBuilder cookieStringBuilder;
     private ProfileManager profileManager;
+    private AccountManager accountManager;
 
     /**
      * Базовый метод для отправки запроса
@@ -122,7 +125,17 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
         return profile;
     }
 
+    public synchronized IAccount getAccount(){
+        IAccount account = accountManager.getAccount();
+        if(account == null) throw new NoSuchElementException("list is empty");
+        return account;
+    }
+
     public void setProfileManger(ProfileManager profileManager){
         this.profileManager = profileManager;
+    }
+
+    public void setAccountManger(AccountManager accountManager){
+        this.accountManager = accountManager;
     }
 }

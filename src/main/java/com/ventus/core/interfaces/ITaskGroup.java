@@ -21,8 +21,6 @@ public interface ITaskGroup {
 
     Class<? extends RequestModule> getTasksType();
 
-    void setTasksType(Class<? extends RequestModule> taskType);
-
     List<IProfile> getProfiles();
 
     List<IProxy> getProxies();

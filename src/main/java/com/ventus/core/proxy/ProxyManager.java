@@ -51,6 +51,7 @@ public class ProxyManager {
         log.info("Switching to another proxy: " + proxy.getHost() + ":" + proxy.getPort() + " --> " + proxy_new.getHost() + ":" + proxy_new.getPort());
         sender.setProxy(proxy_new);
         sender.setHttpClient(HttpClient.newBuilder()
+                .cookieHandler(sender.getCookieManager())
                 .proxy(ProxySelector.of(new InetSocketAddress(proxy_new.getHost(), proxy_new.getPort())))
                 .authenticator(new Authenticator() {
                     @Override
@@ -63,12 +64,13 @@ public class ProxyManager {
     }
 
     public void disableProxy(Sender sender) {
-        sender.setHttpClient(HttpClient.newHttpClient());
+        sender.setHttpClient(HttpClient.newBuilder().cookieHandler(sender.getCookieManager()).build());
     }
 
     public void enableProxy(Sender sender) {
         IProxy proxy = sender.getProxy();
         sender.setHttpClient(HttpClient.newBuilder()
+                .cookieHandler(sender.getCookieManager())
                 .proxy(ProxySelector.of(new InetSocketAddress(proxy.getHost(), proxy.getPort())))
                 .authenticator(new Authenticator() {
                     @Override

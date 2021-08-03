@@ -3,7 +3,6 @@ package com.ventus.core.task;
 import com.ventus.core.exceptions.Not200CodeException;
 import com.ventus.core.interfaces.IAccount;
 import com.ventus.core.interfaces.IProfile;
-import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.models.AccountManager;
 import com.ventus.core.models.ProfileManager;
 import com.ventus.core.network.*;
@@ -23,8 +22,6 @@ import java.util.concurrent.Callable;
 abstract public class RequestModule implements Callable<Map<?, ?>> {
     @Getter
     protected final HashMap<String, String> cookiesMap = new HashMap<>();
-    protected String sessionCookies;
-    protected boolean sendCookie = true;
     protected Sender sender = new Sender();
 
     @Setter
@@ -51,36 +48,12 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
      */
     protected Response send(String method, String link, String json, Map<String, String> requestProperties, InputStreamTypes isDoIn) throws Exception {
 
-        cookieStringBuilder = new StringBuilder();
-        if (sessionCookies != null) {
-            cookieStringBuilder.append(sessionCookies);
-            cookieStringBuilder.append("; ");
-        }
-        if (!cookiesMap.isEmpty()) {
-            for (Map.Entry<String, String> entry : cookiesMap.entrySet()) {
-                cookieStringBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("; ");
-            }
-            cookieStringBuilder = new StringBuilder(cookieStringBuilder.substring(0, cookieStringBuilder.length() - 2));
-        }
-        if (cookieStringBuilder.toString().equals("")) {
-            cookieStringBuilder = new StringBuilder("null");
-        }
-
         Request request = new Request();
 
         request.setLink(link);
         request.setMethod(method);
         request.setDoIn(isDoIn);
         request.setData(json);
-
-        //"cookieStringBuilder" вместо "cookie" <?>
-        if (sendCookie) {
-            request.addRequestProperties("cookie", cookieStringBuilder.toString());
-        }
-
-        System.out.println("-------------------------------");
-        System.out.println(cookieStringBuilder.toString());
-        System.out.println("===============================");
 
         if (requestProperties != null && !requestProperties.isEmpty()) {
             requestProperties.forEach(request::addRequestProperties);
@@ -111,8 +84,7 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     protected abstract void postSend(Response response) throws Exception;
 
     public void configureProxy(ProxyManager proxyManager) {
-        IProxy proxy = proxyManager.getProxy();
-        sender = new Sender(proxy);
+        sender.changeProxy(proxyManager.getProxy());
         sender.setProxyManager(proxyManager);
     }
 
@@ -121,21 +93,21 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
 
     public synchronized IProfile getProfile() {
         IProfile profile = profileManager.getProfile();
-        if(profile == null) throw new NoSuchElementException("list is empty");
+        if (profile == null) throw new NoSuchElementException("list is empty");
         return profile;
     }
 
-    public synchronized IAccount getAccount(){
+    public synchronized IAccount getAccount() {
         IAccount account = accountManager.getAccount();
-        if(account == null) throw new NoSuchElementException("list is empty");
+        if (account == null) throw new NoSuchElementException("list is empty");
         return account;
     }
 
-    public void setProfileManger(ProfileManager profileManager){
+    public void setProfileManger(ProfileManager profileManager) {
         this.profileManager = profileManager;
     }
 
-    public void setAccountManger(AccountManager accountManager){
+    public void setAccountManger(AccountManager accountManager) {
         this.accountManager = accountManager;
     }
 }

@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -67,12 +66,21 @@ public class Sender implements ISender {
      */
     private InputStreamTypes isDoIn = null;
     @Setter
+    @Getter
     private HttpClient httpClient;
     private HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder();
+    @Getter
+    private CookieManager cookieManager = new CookieManager();
+
 
     public Sender(IProxy proxy) {
+        changeProxy(proxy);
+    }
+
+    public void changeProxy(IProxy proxy) {
         this.setProxy(proxy);
         httpClient = HttpClient.newBuilder()
+                .cookieHandler(cookieManager)
                 .proxy(ProxySelector.of(new InetSocketAddress(proxy.getHost(), proxy.getPort())))
                 .authenticator(new Authenticator() {
                     @Override
@@ -107,7 +115,6 @@ public class Sender implements ISender {
      * @return Response ответ сервера
      */
     public Response send(Request request) {
-
         if (proxyManager != null) {
             if (request.getLink().contains("yoomoney.ru")) {
                 proxyManager.disableProxy(this);
@@ -139,16 +146,6 @@ public class Sender implements ISender {
 
             if (httpResponse.statusCode() == 302) {
                 log.info("Redirected to : " + httpResponse.headers().map().get("Location"));
-            }
-
-            //TODO: set//Set cookies have different headers
-            List<String> ls = httpResponse.headers().map().get("set-cookie");
-            if (ls != null) {
-                for (String s : ls) {
-                    String[] arr = s.split(";");
-                    String[] token = arr[0].trim().split("=", 2);
-                    response.addSetCookie(token[0], token[1]);
-                }
             }
 
             isDoIn = request.getDoIn();

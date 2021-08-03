@@ -7,10 +7,7 @@ import com.ventus.core.network.Response;
 import com.ventus.core.network.Sender;
 import lombok.SneakyThrows;
 
-import java.net.Authenticator;
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.ProxySelector;
+import java.net.*;
 import java.net.http.HttpClient;
 
 public class ProxyCheckerTask implements Runnable {

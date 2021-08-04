@@ -63,14 +63,18 @@ public class CookieTest extends RequestModule {
         printCookies();
         log.info("getAsyncDataURL - [OK]");
 
-        String link3 = "https://javarush.ru/groups/posts/605-junit";
+
+
+
+
+/*        String link3 = "https://javarush.ru/groups/posts/605-junit";
 
         log.info("javarush - [START]");
         send("GET", link3, "", asyncDataHeaders, InputStreamTypes.NONE);
         printCookies();
         send("GET", link3, "", asyncDataHeaders, InputStreamTypes.NONE);
         printCookies();
-        log.info("javarush  - [OK]");
+        log.info("javarush  - [OK]");*/
 
         Assert.assertNotNull(this.sender.getCookieManager().getCookieStore().getCookies());
         Assert.assertFalse(this.sender.getCookieManager().getCookieStore().getCookies().isEmpty());
@@ -78,7 +82,6 @@ public class CookieTest extends RequestModule {
 
     public void printCookies() {
        sender.getCookieManager().getCookieStore().getCookies().forEach(System.out::println);
-
     }
 
     @After

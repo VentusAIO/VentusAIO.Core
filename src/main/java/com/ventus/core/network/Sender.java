@@ -65,12 +65,15 @@ public class Sender implements ISender {
      * Тип получаемых данных, если таковые надо будет получать
      */
     private InputStreamTypes isDoIn = null;
+
     @Setter
     @Getter
     private HttpClient httpClient;
+
     private HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder();
+
     @Getter
-    private CookieManager cookieManager = new CookieManager();
+    private CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
 
 
     public Sender(IProxy proxy) {

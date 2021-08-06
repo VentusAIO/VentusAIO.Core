@@ -29,6 +29,8 @@ import java.util.zip.GZIPInputStream;
  */
 @Slf4j
 public class Sender implements ISender {
+    private CookieStore cookieStore;
+
     /**
      * Builder, который формируется заранее
      */
@@ -73,11 +75,16 @@ public class Sender implements ISender {
     private HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder();
 
     @Getter
-    private CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+    private CookieManager cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
 
 
     public Sender(IProxy proxy) {
         changeProxy(proxy);
+    }
+
+    public Sender(CookieStore cookieStore){
+        this.cookieStore = cookieStore;
+        httpClient = HttpClient.newHttpClient();
     }
 
     public void changeProxy(IProxy proxy) {

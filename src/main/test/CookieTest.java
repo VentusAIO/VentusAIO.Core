@@ -1,20 +1,16 @@
-import com.ventus.core.exceptions.Not200CodeException;
+import com.ventus.core.models.Proxy;
 import com.ventus.core.network.InputStreamTypes;
 import com.ventus.core.network.Response;
 import com.ventus.core.network.Sender;
-import com.ventus.core.proxy.Proxy;
 import com.ventus.core.proxy.ProxyStatus;
 import com.ventus.core.task.RequestModule;
-import com.ventus.core.util.JsonParser;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.HttpCookie;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -81,7 +77,7 @@ public class CookieTest extends RequestModule {
     }
 
     public void printCookies() {
-       sender.getCookieManager().getCookieStore().getCookies().forEach(System.out::println);
+        sender.getCookieManager().getCookieStore().getCookies().forEach(System.out::println);
     }
 
     @After

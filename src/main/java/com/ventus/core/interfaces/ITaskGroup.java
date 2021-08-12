@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public interface ITaskGroup {
@@ -30,12 +31,11 @@ public interface ITaskGroup {
 
     String getItemId();
 
-    ExecutorService getExecutorService();
-
     String[] getSizes();
 
     int getAmount();
 
+    ExecutorService executorService = Executors.newCachedThreadPool();
 
     default List<Future<?>> start() {
         List<Future<?>> futures = new LinkedList<>();
@@ -63,14 +63,14 @@ public interface ITaskGroup {
             tasks.add(task);
         }
         for (Callable<Map<?, ?>> task : tasks) {
-            Future<Map<?, ?>> future = getExecutorService().submit(task);
+            Future<Map<?, ?>> future = executorService.submit(task);
             futures.add(future);
         }
-        getExecutorService().shutdown();
+        executorService.shutdown();
         return futures;
     }
 
     default void stop() {
-        getExecutorService().shutdownNow();
+        executorService.shutdownNow();
     }
 }

@@ -22,6 +22,8 @@ import java.nio.file.Path;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -77,7 +79,10 @@ public class Sender implements ISender {
 
 
     public Sender(IProxy proxy) {
-        changeProxy(proxy);
+        ProxyManager proxyManager = new ProxyManager();
+        proxyManager.addProxyList(Collections.singletonList(proxy));
+        changeProxy(proxyManager.getProxy());
+        setProxyManager(proxyManager);
     }
 
     public void changeProxy(IProxy proxy) {

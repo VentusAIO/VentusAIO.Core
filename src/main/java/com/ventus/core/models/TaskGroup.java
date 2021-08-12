@@ -23,7 +23,6 @@ public class TaskGroup implements ITaskGroup {
     private List<IAccount> accounts;
     Class<? extends RequestModule> tasksType = null;
     AvailabilityFilters filter = null;
-    ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Override
     public String[] getSizes() {

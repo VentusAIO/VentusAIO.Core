@@ -7,8 +7,6 @@ import com.ventus.core.network.Response;
 import com.ventus.core.network.Sender;
 import lombok.SneakyThrows;
 
-import java.net.*;
-import java.net.http.HttpClient;
 
 public class ProxyCheckerTask implements Runnable {
     private final IProxy proxyPair;
@@ -18,21 +16,7 @@ public class ProxyCheckerTask implements Runnable {
     public ProxyCheckerTask(IProxy proxyPair, String url) {
         this.url = url;
         this.proxyPair = proxyPair;
-        this.sender = new Sender();
-        sender.setHttpClient(
-                HttpClient.newBuilder()
-                        .proxy(ProxySelector.of(new InetSocketAddress(proxyPair.getHost(), proxyPair.getPort())))
-                        .authenticator(new Authenticator() {
-                            @Override
-                            protected PasswordAuthentication getPasswordAuthentication() {
-                                return new PasswordAuthentication(
-                                        proxyPair.getLogin(),
-                                        proxyPair.getPass().toCharArray()
-                                );
-                            }
-                        })
-                        .build()
-        );
+        this.sender = new Sender(proxyPair);
     }
 
     @SneakyThrows

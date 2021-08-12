@@ -4,8 +4,8 @@ import com.ventus.core.interfaces.IAccount;
 import com.ventus.core.network.PersistentCookieStore;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 
+import java.net.CookieStore;
 import java.net.URI;
 
 @Data
@@ -20,6 +20,12 @@ public class Account implements IAccount {
         this.login = login;
         this.pass = pass;
         cookies = PersistentCookieStore.builder().login(login).path(path).uri(uri).build();
+    }
+
+    public Account(String login, String path, PersistentCookieStore cookies) {
+        this.login = login;
+        this.pass = "";
+        this.cookies = cookies;
     }
 
     @Override

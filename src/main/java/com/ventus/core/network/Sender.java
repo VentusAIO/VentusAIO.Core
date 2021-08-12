@@ -5,6 +5,7 @@ import com.ventus.core.interfaces.ISender;
 import com.ventus.core.proxy.ProxyManager;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.TrustAllStrategy;
@@ -82,9 +83,14 @@ public class Sender implements ISender {
         changeProxy(proxy);
     }
 
+    public Sender() {
+        httpClient = HttpClient.newHttpClient();
+    }
+
     public Sender(CookieStore cookieStore){
         this.cookieStore = cookieStore;
-        httpClient = HttpClient.newHttpClient();
+        this.cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
+        httpClient = HttpClient.newBuilder().cookieHandler(cookieManager).build();
     }
 
     public void changeProxy(IProxy proxy) {
@@ -102,10 +108,6 @@ public class Sender implements ISender {
                     }
                 })
                 .build();
-    }
-
-    public Sender() {
-        httpClient = HttpClient.newHttpClient();
     }
 
     public static void decompressGzipNio(Path source, Path target) throws IOException {

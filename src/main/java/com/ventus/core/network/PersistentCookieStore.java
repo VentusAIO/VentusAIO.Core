@@ -24,7 +24,7 @@ public class PersistentCookieStore implements CookieStore, Runnable {
 
         store = new CookieManager().getCookieStore();
 
-        // reading in cookies from persistant storage
+        // reading in cookies from persistent storage
         List<HttpCookie> httpCookieList = new LinkedList<>();
         String cookieString = null;
 
@@ -39,19 +39,21 @@ public class PersistentCookieStore implements CookieStore, Runnable {
                 }
             }
 
-            assert cookieString != null;
-            Arrays.stream(cookieString.split("; ")).forEach(s -> {
-                String[] parsed = s.split("=", 2);
-                HttpCookie cookie = new HttpCookie(parsed[0], parsed[1]);
-                cookie.setVersion(0);
-                httpCookieList.add(cookie);
-            });
+            if (cookieString != null) {
+                Arrays.stream(cookieString.split("; ")).forEach(s -> {
+                    String[] parsed = s.split("=", 2);
+                    HttpCookie cookie = new HttpCookie(parsed[0], parsed[1]);
+                    cookie.setVersion(0);
+                    httpCookieList.add(cookie);
+                });
+            }
 
         } catch (IOException e) {
             log.error("Error while reading cookies from file");
         }
-
-        httpCookieList.forEach(cookie -> add(uri, cookie));
+        if (cookieString != null) {
+            httpCookieList.forEach(cookie -> add(uri, cookie));
+        }
 
         // add a shutdown hook to write out the in memory cookies
         Runtime.getRuntime().addShutdownHook(new Thread(this));

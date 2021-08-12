@@ -9,8 +9,6 @@ import com.ventus.core.task.RequestModule;
 import lombok.Data;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Data
 public class TaskGroup implements ITaskGroup {
@@ -23,6 +21,7 @@ public class TaskGroup implements ITaskGroup {
     private List<IAccount> accounts;
     Class<? extends RequestModule> tasksType = null;
     AvailabilityFilters filter = null;
+    TaskGroupStatus status;
 
     @Override
     public String[] getSizes() {

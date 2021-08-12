@@ -2,6 +2,7 @@ package com.ventus.core.interfaces;
 
 import com.ventus.core.models.AccountManager;
 import com.ventus.core.models.ProfileManager;
+import com.ventus.core.models.TaskGroupStatus;
 import com.ventus.core.network.AvailabilityFilters;
 import com.ventus.core.proxy.ProxyManager;
 import com.ventus.core.task.RequestModule;
@@ -34,6 +35,10 @@ public interface ITaskGroup {
     String[] getSizes();
 
     int getAmount();
+
+    TaskGroupStatus getStatus();
+
+    void setStatus(TaskGroupStatus status);
 
     ExecutorService executorService = Executors.newCachedThreadPool();
 

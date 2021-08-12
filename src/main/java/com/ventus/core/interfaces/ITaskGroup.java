@@ -3,7 +3,7 @@ package com.ventus.core.interfaces;
 import com.ventus.core.models.AccountManager;
 import com.ventus.core.models.ProfileManager;
 import com.ventus.core.network.AvailabilityFilters;
-import com.ventus.core.proxy.ProxyManager;
+import com.ventus.core.proxy.ProxyManagerImpl;
 import com.ventus.core.task.RequestModule;
 import com.ventus.core.task.TasksFactory;
 
@@ -30,6 +30,8 @@ public interface ITaskGroup {
 
     String getItemId();
 
+    IProxyManager getProxyManager();
+
     ExecutorService getExecutorService();
 
     String[] getSizes();
@@ -41,7 +43,7 @@ public interface ITaskGroup {
         List<Future<?>> futures = new LinkedList<>();
         List<Callable<Map<?, ?>>> tasks = new ArrayList<>();
 
-        ProxyManager proxyManager = new ProxyManager();
+        IProxyManager proxyManager = getProxyManager();
         proxyManager.addProxyList(getProxies());
 
         ProfileManager profileManager = new ProfileManager(getProfiles());

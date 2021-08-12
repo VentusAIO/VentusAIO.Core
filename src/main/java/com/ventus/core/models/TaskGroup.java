@@ -1,10 +1,8 @@
 package com.ventus.core.models;
 
-import com.ventus.core.interfaces.IAccount;
-import com.ventus.core.interfaces.IProfile;
-import com.ventus.core.interfaces.IProxy;
-import com.ventus.core.interfaces.ITaskGroup;
+import com.ventus.core.interfaces.*;
 import com.ventus.core.network.AvailabilityFilters;
+import com.ventus.core.proxy.ProxyManagerImpl;
 import com.ventus.core.task.RequestModule;
 import lombok.Data;
 
@@ -23,7 +21,9 @@ public class TaskGroup implements ITaskGroup {
     private List<IAccount> accounts;
     Class<? extends RequestModule> tasksType = null;
     AvailabilityFilters filter = null;
+    String host = "https://www.google.com";
     ExecutorService executorService = Executors.newCachedThreadPool();
+    private IProxyManager proxyManager = new ProxyManagerImpl();
 
     @Override
     public String[] getSizes() {

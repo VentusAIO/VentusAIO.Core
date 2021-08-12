@@ -1,8 +1,8 @@
 package com.ventus.core.network;
 
 import com.ventus.core.interfaces.IProxy;
+import com.ventus.core.interfaces.IProxyManager;
 import com.ventus.core.interfaces.ISender;
-import com.ventus.core.proxy.ProxyManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,24 +29,11 @@ import java.util.zip.GZIPInputStream;
  */
 @Slf4j
 public class Sender implements ISender {
-    /**
-     * Builder, который формируется заранее
-     */
-    private static HttpClientBuilder builder = null;
 
     static {
-        // global system settings to work with proxy
+        // global system settings to work with http proxy
         System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
         System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
-
-        try {
-            builder = HttpClientBuilder
-                    .create()
-                    .setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build())
-                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
-        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -55,12 +42,9 @@ public class Sender implements ISender {
     @Getter
     @Setter
     private IProxy proxy = null;
-    /**
-     * Поле для установки базового URL для конфгурации прокси
-     */
-//    private URL baseURL = null;
+
     @Setter
-    private ProxyManager proxyManager;
+    private IProxyManager proxyManager;
     /**
      * Тип получаемых данных, если таковые надо будет получать
      */
@@ -70,11 +54,22 @@ public class Sender implements ISender {
     @Getter
     private HttpClient httpClient;
 
+    private HttpClient proxiedHttpClient;
+
+    private final HttpClient defaultHttpClient = HttpClient
+            .newBuilder()
+            .cookieHandler(new CookieManager())
+            .build();
+
     private HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder();
 
     @Getter
-    private CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+    private final CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
 
+
+    public Sender() {
+        httpClient = defaultHttpClient;
+    }
 
     public Sender(IProxy proxy) {
         changeProxy(proxy);
@@ -97,10 +92,6 @@ public class Sender implements ISender {
                 .build();
     }
 
-    public Sender() {
-        httpClient = HttpClient.newHttpClient();
-    }
-
     public static void decompressGzipNio(Path source, Path target) throws IOException {
 
         try (GZIPInputStream gis = new GZIPInputStream(
@@ -120,9 +111,9 @@ public class Sender implements ISender {
     public Response send(Request request) {
         if (proxyManager != null) {
             if (request.getLink().contains("yoomoney.ru")) {
-                proxyManager.disableProxy(this);
+                disableProxy();
             } else {
-                proxyManager.enableProxy(this);
+                enableProxy();
             }
         }
 
@@ -192,5 +183,14 @@ public class Sender implements ISender {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void disableProxy() {
+        proxiedHttpClient = httpClient;
+        httpClient = defaultHttpClient;
+    }
+
+    private void enableProxy() {
+        httpClient = proxiedHttpClient;
     }
 }

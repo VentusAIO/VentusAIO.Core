@@ -3,10 +3,11 @@ package com.ventus.core.task;
 import com.ventus.core.exceptions.Not200CodeException;
 import com.ventus.core.interfaces.IAccount;
 import com.ventus.core.interfaces.IProfile;
+import com.ventus.core.interfaces.IProxyManager;
 import com.ventus.core.models.AccountManager;
 import com.ventus.core.models.ProfileManager;
 import com.ventus.core.network.*;
-import com.ventus.core.proxy.ProxyManager;
+import com.ventus.core.proxy.ProxyManagerImpl;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +84,7 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
      */
     protected abstract void postSend(Response response) throws Exception;
 
-    public void configureProxy(ProxyManager proxyManager) {
+    public void configureProxy(IProxyManager proxyManager) {
         sender.changeProxy(proxyManager.getProxy());
         sender.setProxyManager(proxyManager);
     }

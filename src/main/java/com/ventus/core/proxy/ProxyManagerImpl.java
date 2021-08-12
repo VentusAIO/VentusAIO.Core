@@ -1,6 +1,7 @@
 package com.ventus.core.proxy;
 
 import com.ventus.core.interfaces.IProxy;
+import com.ventus.core.interfaces.IProxyManager;
 import com.ventus.core.network.Sender;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,17 +15,19 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
-public class ProxyManager {
+public class ProxyManagerImpl implements IProxyManager {
     private final List<IProxy> availableProxies = new CopyOnWriteArrayList<>();
     private volatile int counter = 0;
 
-    public ProxyManager() {
+    public ProxyManagerImpl() {
     }
 
+    @Override
     public void addProxyList(List<IProxy> proxies) {
         availableProxies.addAll(proxies);
     }
 
+    @Override
     public synchronized IProxy getProxy() {
         IProxy proxyPair;
         // TODO: add cycle exit if all proxies INVALID
@@ -35,6 +38,7 @@ public class ProxyManager {
         return proxyPair;
     }
 
+    @Override
     public synchronized void replaceProxy(Sender sender) {
         if (sender.getProxy() == null) return;
         IProxy proxy = sender.getProxy();
@@ -63,10 +67,12 @@ public class ProxyManager {
         counter++;
     }
 
+    @Override
     public void disableProxy(Sender sender) {
         sender.setHttpClient(HttpClient.newBuilder().cookieHandler(sender.getCookieManager()).build());
     }
 
+    @Override
     public void enableProxy(Sender sender) {
         IProxy proxy = sender.getProxy();
         sender.setHttpClient(HttpClient.newBuilder()

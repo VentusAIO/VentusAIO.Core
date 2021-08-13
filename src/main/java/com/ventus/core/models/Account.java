@@ -9,7 +9,6 @@ import java.net.CookieStore;
 import java.net.URI;
 
 @Data
-@Builder
 public class Account implements IAccount {
     private String login;
     private String pass;
@@ -21,7 +20,7 @@ public class Account implements IAccount {
         this.pass = pass;
         cookies = PersistentCookieStore.builder().login(login).path(path).uri(uri).build();
     }
-
+    // idk what is going on here
     public Account(String login, String path, PersistentCookieStore cookies) {
         this.login = login;
         this.pass = "";

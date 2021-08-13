@@ -88,7 +88,15 @@ public class PersistentCookieStore implements CookieStore, Runnable {
     }
 
     public void	add(URI uri, HttpCookie cookie) {
-        store.add(uri, cookie);
+        List<HttpCookie> httpCookies = store.get(uri);
+        if (httpCookies.isEmpty()) store.add(uri, cookie);
+        for (HttpCookie savedCookie : httpCookies) {
+            if (Objects.equals(savedCookie.getName(), cookie.getName())) {
+                savedCookie.setValue(cookie.getValue());
+            } else {
+                store.add(uri, cookie);
+            }
+        }
     }
 
     public List<HttpCookie> get(URI uri) {

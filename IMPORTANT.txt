@@ -1,0 +1,12 @@
+To work with proxies properly you need to set system properties via one of the following methods:
+1) In your jre settings: Java\jre1.8.0_131\lib\net.properties (this path is an example) in this file you should comment
+    following line: jdk.http.auth.tunneling.disabledSchemes=Basic
+    (this method was not tested yet)
+2) In main method of your application add following lines of code:
+    System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+    System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+    (works just fine)
+3) Add runtime parameter (aka VM parameters, aka CLI arguments for java command):
+    -Djdk.http.auth.tunneling.disabledSchemes=""
+    -Djdk.http.auth.proxying.disabledSchemes=""
+    (works just fine)

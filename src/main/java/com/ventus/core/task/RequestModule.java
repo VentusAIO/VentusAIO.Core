@@ -3,6 +3,7 @@ package com.ventus.core.task;
 import com.ventus.core.exceptions.Not200CodeException;
 import com.ventus.core.interfaces.IAccount;
 import com.ventus.core.interfaces.IProfile;
+import com.ventus.core.models.Account;
 import com.ventus.core.models.AccountManager;
 import com.ventus.core.models.ProfileManager;
 import com.ventus.core.network.*;
@@ -22,7 +23,6 @@ import java.util.concurrent.Callable;
 abstract public class RequestModule implements Callable<Map<?, ?>> {
     @Getter
     protected final HashMap<String, String> cookiesMap = new HashMap<>();
-    protected Sender sender = new Sender();
 
     @Setter
     protected String itemId;
@@ -34,6 +34,10 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     StringBuilder cookieStringBuilder;
     private ProfileManager profileManager;
     private AccountManager accountManager;
+
+    private final IAccount account = getAccount();
+    protected Sender sender = new Sender(account.getCookieStore());
+
 
     /**
      * Базовый метод для отправки запроса

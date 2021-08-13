@@ -5,6 +5,7 @@ import com.ventus.core.interfaces.ISender;
 import com.ventus.core.proxy.ProxyManager;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.TrustAllStrategy;
@@ -31,15 +32,14 @@ import java.util.zip.GZIPInputStream;
  */
 @Slf4j
 public class Sender implements ISender {
+    private CookieStore cookieStore;
+
     /**
      * Builder, который формируется заранее
      */
     private static HttpClientBuilder builder = null;
 
     static {
-        // global system settings to work with proxy
-        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-        System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
 
         try {
             builder = HttpClientBuilder
@@ -75,7 +75,7 @@ public class Sender implements ISender {
     private HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder();
 
     @Getter
-    private CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+    private CookieManager cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
 
 
     public Sender(IProxy proxy) {
@@ -83,6 +83,16 @@ public class Sender implements ISender {
         proxyManager.addProxyList(Collections.singletonList(proxy));
         changeProxy(proxyManager.getProxy());
         setProxyManager(proxyManager);
+    }
+
+    public Sender() {
+        httpClient = HttpClient.newHttpClient();
+    }
+
+    public Sender(CookieStore cookieStore){
+        this.cookieStore = cookieStore;
+        this.cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
+        httpClient = HttpClient.newBuilder().cookieHandler(cookieManager).build();
     }
 
     public void changeProxy(IProxy proxy) {
@@ -100,10 +110,6 @@ public class Sender implements ISender {
                     }
                 })
                 .build();
-    }
-
-    public Sender() {
-        httpClient = HttpClient.newHttpClient();
     }
 
     public static void decompressGzipNio(Path source, Path target) throws IOException {

@@ -132,4 +132,7 @@ buildNumber.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
 
+# test files:
+cookies.txt
+
 # End of https://www.toptal.com/developers/gitignore/api/java,maven,intellij+all

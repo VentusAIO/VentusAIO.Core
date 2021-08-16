@@ -79,10 +79,7 @@ public class Sender implements ISender {
 
 
     public Sender(IProxy proxy) {
-        ProxyManager proxyManager = new ProxyManager();
-        proxyManager.addProxyList(Collections.singletonList(proxy));
-        changeProxy(proxyManager.getProxy());
-        setProxyManager(proxyManager);
+        changeProxy(proxy);
     }
 
     public Sender() {

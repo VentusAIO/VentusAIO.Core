@@ -59,8 +59,6 @@ public class ProxyCheckerTask implements Runnable {
             result = "Thread was interrupted caused by: " + e.getMessage();
         }
 
-//        proxy.setStatus(((httpResponse.statusCode() == 200 || httpResponse.statusCode() == 302) ? ProxyStatus.VALID : ProxyStatus.INVALID));
-//        result = String.format("Proxy: {%s} -- %s [%d], for host: %s", proxy.getHost(), proxy.getStatus(), httpResponse.statusCode(), url);
         ProxyChecker.callback(result, proxy);
     }
 }

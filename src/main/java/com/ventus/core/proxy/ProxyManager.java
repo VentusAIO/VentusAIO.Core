@@ -25,13 +25,16 @@ public class ProxyManager {
         availableProxies.addAll(proxies);
     }
 
+    // TODO: return Optional of IProxy
     public synchronized IProxy getProxy() {
+        int size = availableProxies.size();
+        int localCounter = 0;
         IProxy proxyPair;
-        // TODO: add cycle exit if all proxies INVALID
+        // TODO: add cycle exit if all proxies INVALID (Done, but ugly)
         do {
             int proxyId = (int) (counter++ % availableProxies.size());
             proxyPair = availableProxies.get(proxyId);
-        } while (proxyPair.getStatus() != ProxyStatus.VALID || proxyPair.getStatus() != ProxyStatus.UNCHECKED);
+        } while (proxyPair.getStatus() != ProxyStatus.VALID || proxyPair.getStatus() != ProxyStatus.UNCHECKED || (size - localCounter++) > 0);
         return proxyPair;
     }
 

@@ -3,10 +3,7 @@ import com.ventus.core.models.Account;
 import com.ventus.core.models.AccountManager;
 import com.ventus.core.models.Profile;
 import com.ventus.core.models.ProfileManager;
-import com.ventus.core.network.InputStreamTypes;
-import com.ventus.core.network.PersistentCookieStore;
-import com.ventus.core.network.Request;
-import com.ventus.core.network.Sender;
+import com.ventus.core.network.*;
 import com.ventus.core.proxy.ProxyStatus;
 import com.ventus.core.task.RequestModule;
 import lombok.SneakyThrows;
@@ -16,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.CookieStore;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,18 +29,20 @@ public class CookieTest {
     @Before
     @SneakyThrows
     public void start() {
-        Proxy proxy = new Proxy("45.134.31.121", 30001, "savvasiry_gmail_com", "b001060fbf");
-        PersistentCookieStore cookieStore = new PersistentCookieStore("79526453542", "cookies.txt", new URI("https://www.ozon.ru"));
+        Proxy proxy = new Proxy("176.53.166.42", 30001, "savvasiry_gmail_com", "b001060fbf");
+//        PersistentCookieStore cookieStore = new PersistentCookieStore("79526453542", "cookies.txt", new URI("https://www.ozon.ru"));
         Profile profile = Profile.builder().build();
-        Account account = Account
-                .builder()
-                .login("79526453542")
-                .pass("penis")
-                .uri(URI.create("https://www.ozon.ru"))
-                .path("cookies.txt")
-                .build();
+//        Account account = Account
+//                .builder()
+//                .login("79526453542")
+//                .pass("penis")
+//                .uri(URI.create("https://www.ozon.ru"))
+//                .path("cookies.txt")
+//                .build();
         proxy.setStatus(ProxyStatus.VALID);
-        sender = new Sender(cookieStore);
+//        sender = new Sender(cookieStore);
+        sender = new Sender();
+//        sender.changeProxy(proxy);
 
         request = new Request();
 
@@ -61,7 +61,7 @@ public class CookieTest {
         asyncDataHeaders.put("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
 
         ProfileManager profileManager = new ProfileManager(Collections.singletonList(profile));
-        AccountManager accountManager = new AccountManager(Collections.singletonList(account));
+//        AccountManager accountManager = new AccountManager(Collections.singletonList(account));
     }
 
     @Test
@@ -77,9 +77,9 @@ public class CookieTest {
 
         log.info("goToStartPage - [START]");
         sender.send(request);
-        printCookies();
+        printCookies(sender.getCookieManager().getCookieStore());
         sender.send(request);
-        printCookies();
+        printCookies(sender.getCookieManager().getCookieStore());
         log.info("Go to start page - [OK]");
 
         String link2 = "https://www.ozon.ru/api/composer-api.bx/page/json/v2?url=%2FozonIdIframe%3FreturnUrl%3D%252F";
@@ -89,21 +89,8 @@ public class CookieTest {
 
         log.info("getAsyncDataURL - [START]");
         sender.send(request);
-        printCookies();
+        printCookies(sender.getCookieManager().getCookieStore());
         log.info("getAsyncDataURL - [OK]");
-
-
-
-
-
-/*        String link3 = "https://javarush.ru/groups/posts/605-junit";
-
-        log.info("javarush - [START]");
-        send("GET", link3, "", asyncDataHeaders, InputStreamTypes.NONE);
-        printCookies();
-        send("GET", link3, "", asyncDataHeaders, InputStreamTypes.NONE);
-        printCookies();
-        log.info("javarush  - [OK]");*/
 
         Assert.assertNotNull(this.sender.getCookieManager().getCookieStore().getCookies());
         Assert.assertFalse(this.sender.getCookieManager().getCookieStore().getCookies().isEmpty());
@@ -112,7 +99,7 @@ public class CookieTest {
     @Test
     @SneakyThrows
     public void test2() {
-        PersistentCookieStore cookieStore = new PersistentCookieStore("79526453542", "cookies.txt", new URI("https://www.ozon.ru"));
+        PersistentCookieStore cookieStore = new PersistentCookieStore("79526494542", "cookies.txt", new URI("https://www.ozon.ru"));
         Proxy proxy = new Proxy("45.134.31.121", 30001, "savvasiry_gmail_com", "b001060fbf");
         proxy.setStatus(ProxyStatus.VALID);
         this.sender = new Sender(cookieStore);
@@ -126,27 +113,31 @@ public class CookieTest {
         request.setDoIn(InputStreamTypes.NONE);
 
         log.info("goToStartPage - [START]");
-        sender.send(request);
-        printCookies();
-        sender.send(request);
-        printCookies();
+        Response response = sender.send(request);
+//        System.out.println("Actual Cookies: \n" + response.getSetCookies() + "\nActual Cookies.");
+        printCookies(cookieStore);
+        request.setLink("https://www.adidas.ru");
+        response = sender.send(request);
+//        System.out.println("Actual Cookies: \n" + response.getSetCookies() + "\nActual Cookies.");
+        printCookies(cookieStore);
         log.info("Go to start page - [OK]");
 
         String link2 = "https://www.ozon.ru/api/composer-api.bx/page/json/v2?url=%2FozonIdIframe%3FreturnUrl%3D%252F";
 
         request.setLink(link2);
-        request.setDoIn(InputStreamTypes.BR);
+//        request.setDoIn(InputStreamTypes.BR);
 
         log.info("getAsyncDataURL - [START]");
-        sender.send(request);
-        printCookies();
+        response = sender.send(request);
+//        System.out.println("Actual Cookies: \n" + response.getSetCookies() + "\nActual Cookies.");
+        printCookies(cookieStore);
         log.info("getAsyncDataURL - [OK]");
     }
 
-    public void printCookies() {
-        System.out.println("------------------------------------------------------------");
-        sender.getCookieManager().getCookieStore().getCookies().forEach(System.out::println);
-        System.out.println("============================================================");
+    public void printCookies(CookieStore cookieStore) {
+        System.out.println("------------------------------- Saved Cookies -------------------------------");
+        cookieStore.getCookies().forEach(x -> System.out.printf("%s: %s\n", x.getDomain(), x));
+        System.out.println("=============================== Saved Cookies ===============================");
     }
 
     @After

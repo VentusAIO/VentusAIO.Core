@@ -26,17 +26,19 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
 
     @Setter
     protected String itemId;
+
     @Setter
     protected AvailabilityFilters filter;
+
     @Setter
     protected String[] sizes;
+
     @Getter
     StringBuilder cookieStringBuilder;
     private ProfileManager profileManager;
     private AccountManager accountManager;
 
-    private final IAccount account = getAccount();
-    protected Sender sender = new Sender(account.getCookieStore());
+    protected Sender sender = new Sender();
 
 
     /**

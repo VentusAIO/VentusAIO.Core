@@ -34,7 +34,7 @@ public class ProxyManager {
         do {
             int proxyId = (int) (counter++ % availableProxies.size());
             proxyPair = availableProxies.get(proxyId);
-        } while (proxyPair.getStatus() != ProxyStatus.VALID || proxyPair.getStatus() != ProxyStatus.UNCHECKED || (size - localCounter++) > 0);
+        } while (!(proxyPair.getStatus() == ProxyStatus.VALID || proxyPair.getStatus() == ProxyStatus.UNCHECKED) && (size - localCounter++) >= 0);
         return proxyPair;
     }
 

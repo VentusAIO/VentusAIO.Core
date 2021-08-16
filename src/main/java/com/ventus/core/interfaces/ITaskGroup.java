@@ -36,10 +36,6 @@ public interface ITaskGroup {
 
     int getAmount();
 
-    TaskGroupStatus getStatus();
-
-    void setStatus(TaskGroupStatus status);
-
     ExecutorService executorService = Executors.newCachedThreadPool();
 
     default List<Future<?>> start() {

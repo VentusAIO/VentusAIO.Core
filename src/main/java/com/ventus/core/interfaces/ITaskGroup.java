@@ -43,6 +43,9 @@ public interface ITaskGroup {
     ExecutorService executorService = Executors.newCachedThreadPool();
 
     default List<Future<?>> start() {
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+
         List<Future<?>> futures = new LinkedList<>();
         List<Callable<Map<?, ?>>> tasks = new ArrayList<>();
 

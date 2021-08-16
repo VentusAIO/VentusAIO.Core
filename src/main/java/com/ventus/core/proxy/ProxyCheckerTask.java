@@ -1,22 +1,13 @@
 package com.ventus.core.proxy;
 
 import com.ventus.core.interfaces.IProxy;
-import com.ventus.core.models.Account;
-import com.ventus.core.models.TaskGroup;
-import com.ventus.core.network.InputStreamTypes;
-import com.ventus.core.network.Request;
-import com.ventus.core.network.Response;
-import com.ventus.core.network.Sender;
-import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpTimeoutException;
 import java.time.Duration;
-import java.util.concurrent.TimeoutException;
 
 public class ProxyCheckerTask implements Runnable {
     private final IProxy proxy;

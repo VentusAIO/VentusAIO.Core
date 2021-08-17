@@ -28,7 +28,7 @@ public class PersistentCookieStore implements CookieStore, Runnable {
         List<HttpCookie> httpCookieList = new LinkedList<>();
         String cookieString = null;
 
-        try{
+        try {
             Scanner scanner = new Scanner(new FileInputStream(path));
             while (scanner.hasNextLine()) {
                 String s = scanner.nextLine();
@@ -87,16 +87,19 @@ public class PersistentCookieStore implements CookieStore, Runnable {
         }
     }
 
-    public void	add(URI uri, HttpCookie cookie) {
+    public void add(URI uri, HttpCookie cookie) {
+        log.info(String.format("ADDED: %s|%s --> %s == %s", uri, cookie.getDomain(), cookie.getName(), cookie.getValue()));
         List<HttpCookie> httpCookies = store.get(uri);
-        if (httpCookies.isEmpty()) store.add(uri, cookie);
+        boolean updated = false;
         for (HttpCookie savedCookie : httpCookies) {
-            if (Objects.equals(savedCookie.getName(), cookie.getName())) {
-                savedCookie.setValue(cookie.getValue());
-            } else {
-                store.add(uri, cookie);
+            if (savedCookie.getName() == cookie.getName()) {
+                if (savedCookie.hasExpired()) {
+                    store.add(uri, cookie);
+                    updated = true;
+                }
             }
         }
+        if (!updated) store.add(uri, cookie);
     }
 
     public List<HttpCookie> get(URI uri) {
@@ -115,7 +118,7 @@ public class PersistentCookieStore implements CookieStore, Runnable {
         return store.remove(uri, cookie);
     }
 
-    public boolean removeAll()  {
+    public boolean removeAll() {
         return store.removeAll();
     }
 }

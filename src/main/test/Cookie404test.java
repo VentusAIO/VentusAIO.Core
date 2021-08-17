@@ -1,4 +1,7 @@
+import com.ventus.core.interfaces.IProxy;
+import com.ventus.core.models.Proxy;
 import com.ventus.core.network.*;
+import com.ventus.core.proxy.ProxyStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
@@ -15,13 +18,17 @@ public class Cookie404test {
     private static final HashMap<String, String> asyncDataHeaders = new HashMap<>();
     private Sender sender;
     private Request request;
+    private PersistentCookieStore cookieStore;
 
     @Before
     @SneakyThrows
     public void start() {
-        PersistentCookieStore cookieStore = new PersistentCookieStore("login", "path", new URI(""));
-        sender = new Sender(cookieStore);
+        cookieStore = new PersistentCookieStore("login", "path", new URI(""));
         request = new Request();
+
+        //Настройка прокси
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
 
 //        adidas properties
         asyncDataHeaders.put("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
@@ -40,7 +47,21 @@ public class Cookie404test {
     }
 
     @Test
-    public void cookie404test() {
+    public void cookie404TestLocalHost() {
+        sender = new Sender(cookieStore);
+        cookie404Test(sender);
+    }
+
+    @Test
+    public void cookie404TestProxy() {
+        IProxy proxy = new Proxy("176.53.166.42", 30001, "savvasiry_gmail_com", "b001060fbf");
+        proxy.setStatus(ProxyStatus.VALID);
+        sender = new Sender(proxy);
+        cookie404Test(sender);
+    }
+
+
+    public void cookie404Test(Sender sender) {
         String itemId = "GZ9112";
 //        IProxy proxy = new Proxy("176.53.166.42", 30001, "savvasiry_gmail_com", "b001060fbf");
 //        proxy.setStatus(ProxyStatus.VALID);
@@ -55,10 +76,10 @@ public class Cookie404test {
         request.setDoIn(InputStreamTypes.NONE);
 
         log.info("availability1 - [START]");
-        Response responce1 = sender.send(request);
+        Response response1 = sender.send(request);
         printCookies();
-        log.info("availability1 - " + responce1.getResponseCode());
-        Assert.assertEquals(responce1.getResponseCode(), 200);
+        log.info("availability1 - " + response1.getResponseCode());
+        Assert.assertEquals(response1.getResponseCode(), 200);
 //        end
 
 //        404
@@ -68,10 +89,10 @@ public class Cookie404test {
         request.setMethod("GET");
         request.setDoIn(InputStreamTypes.NONE);
         log.info("link404 - [START]");
-        Response send = sender.send(request);
+        Response response2 = sender.send(request);
         printCookies();
-        log.info("link404 - " + send.getResponseCode());
-        Assert.assertEquals(responce1.getResponseCode(), 404);
+        log.info("link404 - " + response2.getResponseCode());
+        Assert.assertEquals(response2.getResponseCode(), 404);
 //      end
 
 //      availability2
@@ -82,10 +103,10 @@ public class Cookie404test {
         request.setDoIn(InputStreamTypes.NONE);
 
         log.info("availability2 - [START]");
-        Response send2 = sender.send(request);
+        Response response3 = sender.send(request);
         printCookies();
-        Assert.assertEquals(200, send2.getResponseCode());
-        log.info("availability2 - " + send2.getResponseCode());
+        Assert.assertEquals(200, response3.getResponseCode());
+        log.info("availability2 - " + response3.getResponseCode());
 //      end
     }
 

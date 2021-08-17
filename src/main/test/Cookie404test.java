@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 
 @Slf4j
@@ -47,37 +48,35 @@ public class Cookie404test {
     }
 
     @Test
-    public void cookie404TestLocalHost() {
+    public void cookie404TestLocalHost() throws URISyntaxException {
         sender = new Sender(cookieStore);
         cookie404Test(sender);
     }
 
     @Test
-    public void cookie404TestProxy() {
+    public void cookie404TestProxy() throws URISyntaxException {
         IProxy proxy = new Proxy("176.53.166.42", 30001, "savvasiry_gmail_com", "b001060fbf");
         proxy.setStatus(ProxyStatus.VALID);
         sender = new Sender(proxy);
         cookie404Test(sender);
     }
 
-
-    public void cookie404Test(Sender sender) {
+    public void cookie404Test(Sender sender) throws URISyntaxException {
         String itemId = "GZ9112";
-//        IProxy proxy = new Proxy("176.53.166.42", 30001, "savvasiry_gmail_com", "b001060fbf");
-//        proxy.setStatus(ProxyStatus.VALID);
+        URI uri = new URI("https://www.adidas.ru/");
 
-        //      availability1
         String availabilityLink = "https://www.adidas.ru/api/products/" +
                 itemId + "/availability";
         request.setLink(availabilityLink);
         request.setRequestProperties(asyncDataHeaders);
-        request.setDoIn(InputStreamTypes.GZIP);
         request.setMethod("GET");
         request.setDoIn(InputStreamTypes.NONE);
 
         log.info("availability1 - [START]");
         Response response1 = sender.send(request);
-        printCookies();
+
+        printCookies(uri);
+
         log.info("availability1 - " + response1.getResponseCode());
         Assert.assertEquals(response1.getResponseCode(), 200);
 //        end
@@ -90,7 +89,7 @@ public class Cookie404test {
         request.setDoIn(InputStreamTypes.NONE);
         log.info("link404 - [START]");
         Response response2 = sender.send(request);
-        printCookies();
+        printCookies(uri);
         log.info("link404 - " + response2.getResponseCode());
         Assert.assertEquals(response2.getResponseCode(), 404);
 //      end
@@ -104,15 +103,15 @@ public class Cookie404test {
 
         log.info("availability2 - [START]");
         Response response3 = sender.send(request);
-        printCookies();
+        printCookies(uri);
         Assert.assertEquals(200, response3.getResponseCode());
         log.info("availability2 - " + response3.getResponseCode());
 //      end
     }
 
-    public void printCookies() {
+    public void printCookies(URI uri) {
         System.out.println("------------------------------------------------------------");
-        sender.getCookieManager().getCookieStore().getCookies().forEach(System.out::println);
+        sender.getCookieManager().getCookieStore().get(uri).forEach(System.out::println);
         System.out.println("============================================================");
     }
 

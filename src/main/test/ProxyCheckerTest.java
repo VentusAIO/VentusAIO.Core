@@ -1,12 +1,21 @@
 import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.models.Proxy;
 import com.ventus.core.proxy.ProxyChecker;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class ProxyCheckerTest {
+
+    @Before
+    public void configureProxy(){
+        //Настройка прокси
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+    }
+
     @Test
     public void doCheckProxyForAdidas() {
         //before

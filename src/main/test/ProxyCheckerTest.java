@@ -1,5 +1,5 @@
 import com.ventus.core.interfaces.IProxy;
-import com.ventus.core.proxy.Proxy;
+import com.ventus.core.models.Proxy;
 import com.ventus.core.proxy.ProxyChecker;
 import org.junit.Test;
 

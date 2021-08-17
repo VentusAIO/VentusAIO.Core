@@ -10,6 +10,8 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Data
 public class TaskGroup implements ITaskGroup {
@@ -23,6 +25,7 @@ public class TaskGroup implements ITaskGroup {
     Class<? extends RequestModule> tasksType = null;
     AvailabilityFilters filter = null;
     TaskGroupStatus status;
+    ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Override
     public String[] getSizes() {

@@ -2,7 +2,6 @@ package com.ventus.core.interfaces;
 
 import com.ventus.core.models.AccountManager;
 import com.ventus.core.models.ProfileManager;
-import com.ventus.core.models.TaskGroupStatus;
 import com.ventus.core.network.AvailabilityFilters;
 import com.ventus.core.proxy.ProxyManager;
 import com.ventus.core.task.RequestModule;
@@ -36,12 +35,15 @@ public interface ITaskGroup {
 
     int getAmount();
 
-    ExecutorService executorService = Executors.newCachedThreadPool();
+    ExecutorService getExecutorService();
+
+    void setExecutorService(ExecutorService executorService);
 
     default List<Future<?>> start() {
         System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
         System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
-
+        getExecutorService().shutdownNow();
+        setExecutorService(Executors.newCachedThreadPool());
         List<Future<?>> futures = new LinkedList<>();
         List<Callable<Map<?, ?>>> tasks = new ArrayList<>();
 
@@ -67,14 +69,14 @@ public interface ITaskGroup {
             tasks.add(task);
         }
         for (Callable<Map<?, ?>> task : tasks) {
-            Future<Map<?, ?>> future = executorService.submit(task);
+            Future<Map<?, ?>> future = getExecutorService().submit(task);
             futures.add(future);
         }
-        executorService.shutdown();
+        getExecutorService().shutdown();
         return futures;
     }
 
     default void stop() {
-        executorService.shutdownNow();
+        getExecutorService().shutdownNow();
     }
 }

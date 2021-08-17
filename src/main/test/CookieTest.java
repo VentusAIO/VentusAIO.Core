@@ -98,45 +98,42 @@ public class CookieTest {
 
     @Test
     @SneakyThrows
-    public void test2() {
+    public void shouldSaveCookiesForAdidas() {
+        Response response;
         PersistentCookieStore cookieStore = new PersistentCookieStore("79526494542", "cookies.txt", new URI("https://www.ozon.ru"));
         Proxy proxy = new Proxy("45.134.31.121", 30001, "savvasiry_gmail_com", "b001060fbf");
         proxy.setStatus(ProxyStatus.VALID);
         this.sender = new Sender(cookieStore);
-//        this.sender.changeProxy(proxy);
 
-        String link = "https://www.ozon.ru/";
-
-        request.setLink(link);
+        request.setLink("https://www.adidas.ru");
         request.setRequestProperties(asyncDataHeaders);
         request.setMethod("GET");
-        request.setDoIn(InputStreamTypes.NONE);
+        request.setDoIn(InputStreamTypes.DEFAULT);
 
         log.info("goToStartPage - [START]");
-        Response response = sender.send(request);
-//        System.out.println("Actual Cookies: \n" + response.getSetCookies() + "\nActual Cookies.");
-        printCookies(cookieStore);
-        request.setLink("https://www.adidas.ru");
         response = sender.send(request);
-//        System.out.println("Actual Cookies: \n" + response.getSetCookies() + "\nActual Cookies.");
         printCookies(cookieStore);
+        System.out.println(response.getResponseCode());
         log.info("Go to start page - [OK]");
 
-        String link2 = "https://www.ozon.ru/api/composer-api.bx/page/json/v2?url=%2FozonIdIframe%3FreturnUrl%3D%252F";
-
-        request.setLink(link2);
+        log.info("Go to adidas queue - [START]");
+        request.setLink("https://www.adidas.ru/yeezy/product/GV7675");
+        response = sender.send(request);
+        printCookies(cookieStore);
+        System.out.println(response.getResponseCode());
+        log.info("Go to adidas queue - [OK]");
 //        request.setDoIn(InputStreamTypes.BR);
 
-        log.info("getAsyncDataURL - [START]");
-        response = sender.send(request);
+//        log.info("getAsyncDataURL - [START]");
+//        response = sender.send(request);
 //        System.out.println("Actual Cookies: \n" + response.getSetCookies() + "\nActual Cookies.");
-        printCookies(cookieStore);
-        log.info("getAsyncDataURL - [OK]");
+//        printCookies(cookieStore);
+//        log.info("getAsyncDataURL - [OK]");
     }
 
     public void printCookies(CookieStore cookieStore) {
         System.out.println("------------------------------- Saved Cookies -------------------------------");
-        cookieStore.getCookies().forEach(x -> System.out.printf("%s: %s\n", x.getDomain(), x));
+        cookieStore.getCookies().forEach(x -> System.out.printf("%s: %s\n", x.getDomain(), x, x.getMaxAge()));
         System.out.println("=============================== Saved Cookies ===============================");
     }
 

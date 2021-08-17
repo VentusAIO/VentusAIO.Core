@@ -30,27 +30,30 @@ public class PersistentCookieStore implements CookieStore, Runnable {
 
         try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(path))) {
 
-            int length = 0;
-
-            Scanner scanner = new Scanner(new FileInputStream(path));
-            while (scanner.hasNextLine()) {
-                String s = scanner.nextLine();
-                if (s.contains(login)) {
-                    String[] strings = s.split(":");
-                    cookieString = strings[1];
-                    break;
-                } else {
-                    length += s.getBytes().length;
-                }
-            }
-
-            length += (login + ":").getBytes().length;
-
-            objectInputStream.skipBytes(length);
+//            int length = 0;
+//
+//            Scanner scanner = new Scanner(new FileInputStream(path));
+//            while (scanner.hasNextLine()) {
+//                String s = scanner.nextLine();
+//                if (s.contains(login)) {
+//                    String[] strings = s.split(":");
+//                    cookieString = strings[1];
+//                    break;
+//                } else {
+//                    length += s.getBytes().length;
+//                }
+//            }
+//
+//            length += (login + ":").getBytes().length;
+//
+//            objectInputStream.skipBytes(length);
             ArrayList<Cookie> cookies = (ArrayList<Cookie>) objectInputStream.readObject();
+
             cookies.forEach(cookie -> httpCookieList.add(convertToHttpCookie(cookie)));
+            cookies.forEach(cookie -> store.add(uri, convertToHttpCookie(cookie)));
 
             System.out.println(httpCookieList);
+            System.out.println(cookies);
 
 //            if (cookieString != null) {
 //                Arrays.stream(cookieString.split("; ")).forEach(s -> {
@@ -62,10 +65,7 @@ public class PersistentCookieStore implements CookieStore, Runnable {
 //            }
 
         } catch (IOException | ClassNotFoundException e) {
-            log.error("Error while reading cookies from file");
-        }
-        if (cookieString != null) {
-            httpCookieList.forEach(cookie -> add(uri, cookie));
+            log.error("Error while reading cookies from file: " + e.getMessage());
         }
 
         // add a shutdown hook to write out the in memory cookies
@@ -79,30 +79,9 @@ public class PersistentCookieStore implements CookieStore, Runnable {
             ArrayList<Cookie> cookies = new ArrayList<>();
 
             getCookies().forEach(httpCookie -> cookies.add(convertToCookieModel(httpCookie)));
-            objectOutputStream.writeChars(login + ":");
             objectOutputStream.writeObject(cookies);
             objectOutputStream.flush();
 
-//            StringBuilder stringBuilder = new StringBuilder();
-//            this.getCookies().forEach(httpCookie -> stringBuilder.append(httpCookie.toString()).append("; "));
-//            stringBuilder.setLength(stringBuilder.length() - 2);
-//
-//            List<String> fileContent = new ArrayList<>(Files.readAllLines(Path.of(path), StandardCharsets.UTF_8));
-//            boolean flag = false;
-//
-//            for (int i = 0; i < fileContent.size(); i++) {
-//                if (fileContent.get(i).contains(login)) {
-//                    fileContent.set(i, login + ":" + stringBuilder);
-//                    flag = true;
-//                    break;
-//                }
-//            }
-//
-//            if (!flag) {
-//                fileContent.add(login + ":" + stringBuilder);
-//            }
-////            log.info(fileContent.toString());
-//            Files.write(Path.of(path), fileContent, StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.error("Error while writing cookies down in file");
         }
@@ -145,20 +124,19 @@ public class PersistentCookieStore implements CookieStore, Runnable {
 
     @Override
     public void	add(URI uri, HttpCookie cookie) {
-        log.info(String.format("ADDED: %s|%s --> %s == %s", uri, cookie.getDomain(), cookie.getName(), cookie.getValue()));
-//        boolean changed = false;
-//        List<HttpCookie> httpCookies = store.get(uri);
-//        if (httpCookies.isEmpty()) store.add(uri, cookie);
-//        for (HttpCookie savedCookie : httpCookies) {
-//            if (savedCookie.getName() == cookie.getName()) {
-//                savedCookie.setValue(cookie.getValue());
-//                changed = true;
-//            } else {
-//                store.add(uri, cookie);
-//            }
-//        }
-//        store.remove(uri, cookie);
-        store.add(uri, cookie);
+        List<HttpCookie> httpCookies = store.get(uri);
+        boolean updated = false;
+        for (HttpCookie savedCookie : httpCookies) {
+            if (savedCookie.getName() == cookie.getName()) {
+                if (savedCookie.hasExpired()) {
+                    store.add(uri, cookie);
+                    log.info(String.format("ADDED: %s|%s --> %s == %s", uri, cookie.getDomain(), cookie.getName(), cookie.getValue()));
+                    updated = true;
+                }
+            }
+        }
+//        if (!updated) store.add(uri, cookie);
+//        store.add(uri, cookie);
     }
 
     public List<HttpCookie> get(URI uri) {

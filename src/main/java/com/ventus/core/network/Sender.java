@@ -36,9 +36,6 @@ public class Sender implements ISender {
     private static HttpClientBuilder builder = null;
 
     static {
-        // global system settings to work with proxy
-        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-        System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
 
         try {
             builder = HttpClientBuilder

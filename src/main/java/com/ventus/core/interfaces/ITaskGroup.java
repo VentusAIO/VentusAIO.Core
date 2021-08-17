@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public interface ITaskGroup {
@@ -30,14 +31,19 @@ public interface ITaskGroup {
 
     String getItemId();
 
-    ExecutorService getExecutorService();
-
     String[] getSizes();
 
     int getAmount();
 
+    ExecutorService getExecutorService();
+
+    void setExecutorService(ExecutorService executorService);
 
     default List<Future<?>> start() {
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+        getExecutorService().shutdownNow();
+        setExecutorService(Executors.newCachedThreadPool());
         List<Future<?>> futures = new LinkedList<>();
         List<Callable<Map<?, ?>>> tasks = new ArrayList<>();
 

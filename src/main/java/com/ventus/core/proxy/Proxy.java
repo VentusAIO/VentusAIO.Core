@@ -1,6 +1,7 @@
-package com.ventus.core.proxy;
+package com.ventus.core.models;
 
 import com.ventus.core.interfaces.IProxy;
+import com.ventus.core.proxy.ProxyStatus;
 import lombok.Data;
 
 @Data

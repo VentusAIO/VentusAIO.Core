@@ -8,6 +8,7 @@ import com.ventus.core.network.AvailabilityFilters;
 import com.ventus.core.task.RequestModule;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,11 +19,12 @@ public class TaskGroup implements ITaskGroup {
     private String name;
     private String itemId;
     private int amount;
-    private List<IProfile> profiles;
-    private List<IProxy> proxies;
-    private List<IAccount> accounts;
+    private List<IProfile> profiles = new ArrayList<>();
+    private List<IProxy> proxies = new ArrayList<>();
+    private List<IAccount> accounts = new ArrayList<>();
     Class<? extends RequestModule> tasksType = null;
     AvailabilityFilters filter = null;
+    TaskGroupStatus status;
     ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Override

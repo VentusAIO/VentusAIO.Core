@@ -9,6 +9,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.CookieManager;
+import java.net.CookieStore;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -19,12 +21,13 @@ public class Cookie404test {
     private static final HashMap<String, String> asyncDataHeaders = new HashMap<>();
     private Sender sender;
     private Request request;
-    private PersistentCookieStore cookieStore;
+    private CookieStore cookieStore;
 
     @Before
     @SneakyThrows
     public void start() {
-        cookieStore = new PersistentCookieStore("login", "path", new URI(""));
+        cookieStore = new PersistentCookieStore("login", "path.txt", new URI("https://www.adidas.ru"));
+//        cookieStore = new CookieManager().getCookieStore();
         request = new Request();
 
         //Настройка прокси
@@ -47,7 +50,7 @@ public class Cookie404test {
         asyncDataHeaders.put("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
     }
 
-    @Test
+//    @Test
     public void cookie404TestLocalHost() throws URISyntaxException {
         sender = new Sender(cookieStore);
         cookie404Test(sender);
@@ -57,7 +60,8 @@ public class Cookie404test {
     public void cookie404TestProxy() throws URISyntaxException {
         IProxy proxy = new Proxy("176.53.166.42", 30001, "savvasiry_gmail_com", "b001060fbf");
         proxy.setStatus(ProxyStatus.VALID);
-        sender = new Sender(proxy);
+        sender = new Sender(cookieStore);
+        sender.changeProxy(proxy);
         cookie404Test(sender);
     }
 
@@ -65,6 +69,19 @@ public class Cookie404test {
         String itemId = "GZ9112";
         URI uri = new URI("https://www.adidas.ru/");
 
+        //get right geo_ip cookie:
+        log.info("getting right cookies - [START]");
+        request.setLink("https://www.adidas.ru/");
+        request.setRequestProperties(asyncDataHeaders);
+        request.setMethod("GET");
+        request.setDoIn(InputStreamTypes.NONE);
+        Response response = sender.send(request);
+        printCookies(uri);
+        log.info(String.format("getting right cookies - [%d]", response.getResponseCode()));
+        Assert.assertEquals(200, response.getResponseCode());
+        //end
+
+//        availability1
         String availabilityLink = "https://www.adidas.ru/api/products/" +
                 itemId + "/availability";
         request.setLink(availabilityLink);
@@ -91,7 +108,7 @@ public class Cookie404test {
         Response response2 = sender.send(request);
         printCookies(uri);
         log.info("link404 - " + response2.getResponseCode());
-        Assert.assertEquals(response2.getResponseCode(), 404);
+        Assert.assertEquals(404, response2.getResponseCode());
 //      end
 
 //      availability2
@@ -111,7 +128,7 @@ public class Cookie404test {
 
     public void printCookies(URI uri) {
         System.out.println("------------------------------------------------------------");
-        sender.getCookieManager().getCookieStore().get(uri).forEach(System.out::println);
+        sender.getCookieManager().getCookieStore().get(uri).forEach(x -> System.out.printf("%s: %s=%s, (Version=%d, MaxAge=%d, Path=%s)\n", x.getDomain(), x.getName(), x.getValue(), x.getVersion(), x.getMaxAge(), x.getPath()));
         System.out.println("============================================================");
     }
 

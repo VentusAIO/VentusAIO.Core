@@ -1,14 +1,10 @@
+import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.models.Proxy;
-import com.ventus.core.models.Account;
-import com.ventus.core.models.AccountManager;
-import com.ventus.core.models.Profile;
-import com.ventus.core.models.ProfileManager;
 import com.ventus.core.network.InputStreamTypes;
-import com.ventus.core.network.PersistentCookieStore;
 import com.ventus.core.network.Request;
+import com.ventus.core.network.Response;
 import com.ventus.core.network.Sender;
 import com.ventus.core.proxy.ProxyStatus;
-import com.ventus.core.task.RequestModule;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
@@ -16,8 +12,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,22 +21,16 @@ public class CookieTest {
     private static final HashMap<String, String> asyncDataHeaders = new HashMap<>();
     private Sender sender;
     private Request request;
+    private final Map<String, String> cookiesMap = new HashMap<>();
 
     @Before
     @SneakyThrows
     public void start() {
-        Proxy proxy = new Proxy("45.134.31.121", 30001, "savvasiry_gmail_com", "b001060fbf");
-        PersistentCookieStore cookieStore = new PersistentCookieStore("79526453542", "cookies.txt", new URI("https://www.ozon.ru"));
-        Profile profile = Profile.builder().build();
-        Account account = Account
-                .builder()
-                .login("79526453542")
-                .pass("penis")
-                .uri(URI.create("https://www.ozon.ru"))
-                .path("cookies.txt")
-                .build();
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+        IProxy proxy = new Proxy("176.53.166.42", 30001, "savvasiry_gmail_com", "b001060fbf");
         proxy.setStatus(ProxyStatus.VALID);
-        sender = new Sender(cookieStore);
+        sender = new Sender(proxy);
 
         request = new Request();
 
@@ -60,62 +48,86 @@ public class CookieTest {
         asyncDataHeaders.put("upgrade-insecure-requests", "1");
         asyncDataHeaders.put("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
 
-        ProfileManager profileManager = new ProfileManager(Collections.singletonList(profile));
-        AccountManager accountManager = new AccountManager(Collections.singletonList(account));
     }
 
     @Test
-    public void test1() throws Exception {
-        System.out.println(this.sender.getCookieManager().getCookieStore().getCookies());
+    public void shouldSaveCookiesFromAdidas() throws Exception {
+        String itemId = "GZ9112";
+        Response response;
+        StringBuilder cookieStringBuilder = new StringBuilder();
 
-        String link = "https://www.ozon.ru/";
-
-        request.setLink(link);
+        //get right geo_ip cookie:
+        log.info("getting right cookies - [START]");
+        request.setLink("https://www.adidas.ru/");
         request.setRequestProperties(asyncDataHeaders);
         request.setMethod("GET");
         request.setDoIn(InputStreamTypes.NONE);
+        response = sender.send(request);
 
-        log.info("goToStartPage - [START]");
-        sender.send(request);
-        printCookies();
-        sender.send(request);
-        printCookies();
-        log.info("Go to start page - [OK]");
+        updateCookies(response);
+        printCookies(cookiesMap);
 
-        String link2 = "https://www.ozon.ru/api/composer-api.bx/page/json/v2?url=%2FozonIdIframe%3FreturnUrl%3D%252F";
+        log.info(String.format("getting right cookies - [%d]", response.getResponseCode()));
+        Assert.assertEquals(200, response.getResponseCode());
+        //end
 
-        request.setLink(link2);
-        request.setDoIn(InputStreamTypes.BR);
+//        availability1
+        String availabilityLink = "https://www.adidas.ru/api/products/" +
+                itemId + "/availability";
+        request.setLink(availabilityLink);
+        request.setRequestProperties(asyncDataHeaders);
+        request.addRequestProperties("cookie", collectCookies(cookiesMap).toString());
+        request.setMethod("GET");
+        request.setDoIn(InputStreamTypes.NONE);
 
-        log.info("getAsyncDataURL - [START]");
-        sender.send(request);
-        printCookies();
-        log.info("getAsyncDataURL - [OK]");
+        log.info("availability1 - [START]");
+        response = sender.send(request);
 
+        updateCookies(response);
+        printCookies(cookiesMap);
 
+        log.info("availability1 - " + response.getResponseCode());
+        Assert.assertEquals(response.getResponseCode(), 200);
+//        end
 
+//        404
+        String link404 = "https://www.adidas.ru/sbadhjsabdjhasbd";
+        request.setLink(link404);
+        request.setRequestProperties(asyncDataHeaders);
+        request.addRequestProperties("cookie", collectCookies(cookiesMap).toString());
+        request.setMethod("GET");
+        request.setDoIn(InputStreamTypes.NONE);
+        log.info("link404 - [START]");
+        response = sender.send(request);
 
+        updateCookies(response);
+        printCookies(cookiesMap);
 
-/*        String link3 = "https://javarush.ru/groups/posts/605-junit";
+        log.info("link404 - " + response.getResponseCode());
+        Assert.assertEquals(404, response.getResponseCode());
+//      end
 
-        log.info("javarush - [START]");
-        send("GET", link3, "", asyncDataHeaders, InputStreamTypes.NONE);
-        printCookies();
-        send("GET", link3, "", asyncDataHeaders, InputStreamTypes.NONE);
-        printCookies();
-        log.info("javarush  - [OK]");*/
+//      availability2
+        request.setLink(availabilityLink);
+        request.setRequestProperties(asyncDataHeaders);
+        request.addRequestProperties("cookie", collectCookies(cookiesMap).toString());
+        request.setDoIn(InputStreamTypes.GZIP);
+        request.setMethod("GET");
+        request.setDoIn(InputStreamTypes.NONE);
 
-        Assert.assertNotNull(this.sender.getCookieManager().getCookieStore().getCookies());
-        Assert.assertFalse(this.sender.getCookieManager().getCookieStore().getCookies().isEmpty());
+        log.info("availability2 - [START]");
+        response = sender.send(request);
+
+        updateCookies(response);
+        printCookies(cookiesMap);
+
+        Assert.assertEquals(200, response.getResponseCode());
+        log.info("availability2 - " + response.getResponseCode());
     }
 
     @Test
     @SneakyThrows
     public void test2() {
-        PersistentCookieStore cookieStore = new PersistentCookieStore("79526453542", "cookies.txt", new URI("https://www.ozon.ru"));
-        Proxy proxy = new Proxy("45.134.31.121", 30001, "savvasiry_gmail_com", "b001060fbf");
-        proxy.setStatus(ProxyStatus.VALID);
-        this.sender = new Sender(cookieStore);
 //        this.sender.changeProxy(proxy);
 
         String link = "https://www.ozon.ru/";
@@ -127,9 +139,9 @@ public class CookieTest {
 
         log.info("goToStartPage - [START]");
         sender.send(request);
-        printCookies();
+//        printCookies();
         sender.send(request);
-        printCookies();
+//        printCookies();
         log.info("Go to start page - [OK]");
 
         String link2 = "https://www.ozon.ru/api/composer-api.bx/page/json/v2?url=%2FozonIdIframe%3FreturnUrl%3D%252F";
@@ -139,18 +151,41 @@ public class CookieTest {
 
         log.info("getAsyncDataURL - [START]");
         sender.send(request);
-        printCookies();
+//        printCookies();
         log.info("getAsyncDataURL - [OK]");
     }
 
-    public void printCookies() {
+    public void printCookies(Map<String , String> cookies) {
         System.out.println("------------------------------------------------------------");
-        sender.getCookieManager().getCookieStore().getCookies().forEach(System.out::println);
+        cookies.forEach((key, value) -> System.out.printf("%s=%s\n", key, value));
+//        sender.getCookieManager().getCookieStore().getCookies().forEach(System.out::println);
         System.out.println("============================================================");
     }
 
     @After
     public void finish() {
 
+    }
+
+    StringBuilder collectCookies(Map<String, String> cookiesMap) {
+        StringBuilder cookieStringBuilder = new StringBuilder();
+        if (!cookiesMap.isEmpty()) {
+            for (Map.Entry<String, String> entry : cookiesMap.entrySet()) {
+                cookieStringBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("; ");
+            }
+            cookieStringBuilder = new StringBuilder(cookieStringBuilder.substring(0, cookieStringBuilder.length() - 2));
+        }
+        if (cookieStringBuilder.toString().equals("")) {
+            cookieStringBuilder = new StringBuilder("null");
+        }
+        return cookieStringBuilder;
+    }
+
+    void updateCookies(Response response) {
+        if (!response.getSetCookies().isEmpty()) {
+            for (Map.Entry<String, String> entry : response.getSetCookies().entrySet()) {
+                cookiesMap.putIfAbsent(entry.getKey(), entry.getValue());
+            }
+        }
     }
 }

@@ -147,23 +147,21 @@ public class PersistentCookieStore implements CookieStore, Runnable {
 
     @Override
     public void	add(URI uri, HttpCookie cookie) {
-//        if (cookie.getName().equals("bm_mi")) return;
         List<HttpCookie> httpCookies = store.get(uri);
         boolean updated = false;
-        log.info(String.format("TRY TO ADD: %s|%s --> %s == %s", uri, cookie.getDomain(), cookie.getName(), cookie.getValue()));
-//        log.info(String.format("saved cookies amount: %d", httpCookies.size()));
+        log.info(String.format("TRY TO ADD: %s|%s --> %s == %s(%d)", uri, cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getMaxAge()));
         for (HttpCookie savedCookie : httpCookies) {
             if (savedCookie.hasExpired()) remove(uri, savedCookie);
             if (savedCookie.equals(cookie)) {
-                if (savedCookie.hasExpired()) {
-                    log.info(String.format("ADDED: %s|%s --> %s == %s", uri, cookie.getDomain(), cookie.getName(), cookie.getValue()));
+                if (savedCookie.getMaxAge() == -1) {
+                    log.info(String.format("ADDED(inside): %s|%s --> %s == %s(%d)", uri, cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getMaxAge()));
                     store.add(uri, cookie);
                     updated = true;
                 }
             }
         }
         if (!updated && !httpCookies.contains(cookie)){
-            log.info(String.format("ADDED: %s|%s --> %s == %s", uri, cookie.getDomain(), cookie.getName(), cookie.getValue()));
+            log.info(String.format("ADDED(after): %s|%s --> %s == %s(%d)", uri, cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getMaxAge()));
             store.add(uri, cookie);
         }
     }

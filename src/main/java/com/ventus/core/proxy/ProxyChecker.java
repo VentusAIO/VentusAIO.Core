@@ -12,16 +12,18 @@ import java.time.Duration;
 
 @Slf4j
 public class ProxyChecker {
-    public static ProxyStatus check(IProxy proxy, String url) {
+    static {
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+    }
+
+    public static ProxyStatus check(IProxy iProxy, String url) {
         HttpClient httpClient = HttpClient.newBuilder()
-                .proxy(ProxySelector.of(new InetSocketAddress(proxy.getHost(), proxy.getPort())))
+                .proxy(ProxySelector.of(new InetSocketAddress(iProxy.getHost(), iProxy.getPort())))
                 .authenticator(new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(
-                                proxy.getLogin(),
-                                proxy.getPass().toCharArray()
-                        );
+                        return new PasswordAuthentication(iProxy.getLogin(), iProxy.getPass().toCharArray());
                     }
                 })
                 .build();
@@ -39,10 +41,10 @@ public class ProxyChecker {
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             result = (httpResponse.statusCode() == 200 || httpResponse.statusCode() == 302) ? ProxyStatus.VALID : ProxyStatus.INVALID;
             statusCode = httpResponse.statusCode();
-            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", proxy.getHost(), result, statusCode, url));
+            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", iProxy.getHost(), result, statusCode, url));
         } catch (IOException e) {
             result = ProxyStatus.INVALID;
-            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", proxy.getHost(), result, statusCode, url));
+            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", iProxy.getHost(), result, statusCode, url));
         } catch (InterruptedException e) {
             result = ProxyStatus.INVALID;
             log.info("Thread was interrupted caused by: " + e.getMessage());

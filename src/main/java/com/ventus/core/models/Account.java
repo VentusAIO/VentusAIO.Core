@@ -12,23 +12,12 @@ import java.net.URI;
 public class Account implements IAccount {
     private String login;
     private String pass;
-    private PersistentCookieStore cookies;
+    private String cookies;
 
     @Builder
-    public Account(String login, String pass, String path, URI uri) {
+    public Account(String login, String pass, String cookies) {
         this.login = login;
         this.pass = pass;
-        cookies = PersistentCookieStore.builder().login(login).path(path).uri(uri).build();
-    }
-    // idk what is going on here
-    public Account(String login, String path, PersistentCookieStore cookies) {
-        this.login = login;
-        this.pass = "";
         this.cookies = cookies;
-    }
-
-    @Override
-    public PersistentCookieStore getCookieStore() {
-        return cookies;
     }
 }

@@ -3,36 +3,63 @@ package com.ventus.core.proxy;
 import com.ventus.core.interfaces.IProxy;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
+import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
 @Slf4j
 public class ProxyChecker {
-    private static final List<IProxy> proxyPairs = new ArrayList<>();
+    public static ProxyStatus check(IProxy proxy, String url) {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .proxy(ProxySelector.of(new InetSocketAddress(proxy.getHost(), proxy.getPort())))
+                .authenticator(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(
+                                proxy.getLogin(),
+                                proxy.getPass().toCharArray()
+                        );
+                    }
+                })
+                .build();
 
-    private ProxyChecker() {
+        HttpRequest httpRequest = HttpRequest
+                .newBuilder()
+                .GET()
+                .timeout(Duration.ofMillis(10_000))
+                .uri(URI.create(url))
+                .build();
 
-    }
-
-    protected static synchronized void callback(String message, IProxy proxyPair) {
-        proxyPairs.add(proxyPair);
-        log.info(message);
-    }
-
-    public static List<IProxy> check(List<IProxy> proxyPairs, String host) {
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        for (IProxy proxyPair : proxyPairs) {
-            executorService.submit(new ProxyCheckerTask(proxyPair, host));
-        }
-        executorService.shutdown();
+        ProxyStatus result;
+        int statusCode = -1;
         try {
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            result = (httpResponse.statusCode() == 200 || httpResponse.statusCode() == 302) ? ProxyStatus.VALID : ProxyStatus.INVALID;
+            statusCode = httpResponse.statusCode();
+            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", proxy.getHost(), result, statusCode, url));
+        } catch (IOException e) {
+            result = ProxyStatus.INVALID;
+            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", proxy.getHost(), result, statusCode, url));
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            result = ProxyStatus.INVALID;
+            log.info("Thread was interrupted caused by: " + e.getMessage());
         }
-        return proxyPairs;
+        return result;
     }
+//    public static List<IProxy> check(List<IProxy> proxyPairs, String host) {
+//        ExecutorService executorService = Executors.newCachedThreadPool();
+//        for (IProxy proxyPair : proxyPairs) {
+//            executorService.submit(new ProxyCheckerTask(proxyPair, host));
+//        }
+//        executorService.shutdown();
+//        try {
+//            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        return proxyPairs;
+//    }
 }

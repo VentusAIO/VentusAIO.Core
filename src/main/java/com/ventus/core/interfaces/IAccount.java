@@ -7,5 +7,5 @@ public interface IAccount {
     void setLogin(String login);
     String getPass();
     void setPass(String pass);
-    PersistentCookieStore getCookieStore();
+    String getCookies();
 }

@@ -1,3 +1,4 @@
+import com.ventus.core.exceptions.Not200CodeException;
 import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.models.Proxy;
 import com.ventus.core.network.*;
@@ -14,6 +15,7 @@ import java.net.CookieStore;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Scanner;
 
 @Slf4j
 public class Cookie404test {
@@ -28,8 +30,8 @@ public class Cookie404test {
     @Before
     @SneakyThrows
     public void start() {
-//        adidasCookieStore = new PersistentCookieStore("login", "path.txt", new URI("https://www.adidas.ru"));
-        ozonCookieStore = new PersistentCookieStore("", "cookies.txt", URI.create("https://www.ozon.ru"));
+        adidasCookieStore = new PersistentCookieStore("login", "path.txt", new URI("https://www.adidas.ru"));
+//        ozonCookieStore = new PersistentCookieStore("", "cookies.txt", URI.create("https://www.ozon.ru"));
 //        cookieStore = new CookieManager().getCookieStore();
         request = new Request();
 
@@ -176,6 +178,19 @@ public class Cookie404test {
         Assert.assertEquals(200, response.getResponseCode());
         //end
 
+        //get 404
+        log.info("get 404 - [START]");
+        request.setLink("https://www.ozon.ru/sahdofihsadoif");
+        request.setRequestProperties(ozonHeaders);
+        request.setDoIn(InputStreamTypes.NONE);
+        request.setMethod("GET");
+        response = sender.send(request);
+        printCookies(uri);
+        log.info("get 404 - [{}]", response.getResponseCode());
+        log.info("response headers: {}", response.getHeaderFields());
+//        Assert.assertEquals(404, response.getResponseCode());
+        //end
+
         //get summary
         log.info("get summary - [START]");
         request.setLink("https://www.ozon.ru/api/composer-api.bx/_action/summary");
@@ -214,6 +229,52 @@ public class Cookie404test {
         asyncData = JsonParser.getValue(response.getData(), "asyncData");
         asyncData = asyncData.replace("\\\\u002F", "/");
         log.info("asyncData - {}", asyncData);
+
+        //get CSRF token
+        String json = "{\"asyncData\":\"" + asyncData + "\",\"componentName\":\"loginOrRegistration\"}";
+        request.setLink("https://www.ozon.ru/api/composer-api.bx/widget/json/v2");
+        request.setData(json);
+        request.setDoIn(InputStreamTypes.GZIP);
+        request.setMethod("POST");
+        log.info("getCsrfToken - [START]");
+        response = sender.send(request);
+        String authRequestToken = JsonParser.getValue(response.getData(), "authRequestToken");
+        String csrfToken = JsonParser.getValue(response.getData(), "csrfToken");
+        printCookies(uri);
+        log.info("get CSRF - [{}]", response.getResponseCode());
+        log.info("response headers: {}", response.getHeaderFields());
+        //end
+
+        //login
+        request.setLink("https://www.ozon.ru/api/composer-api.bx/_action/fastEntryV3");
+        json = "{\"authRequestToken\":\"" + authRequestToken + "\",\"isAlphaNumericOtp\":false,\"hideHints\":false,\"csrfToken\":\"" + csrfToken + "\",\"isOtpExpired\":false,\"isAdsAllowed\":false,\"phone\":\"" + "79526453542" + "\"}";
+        request.setData(json);
+        request.setDoIn(InputStreamTypes.GZIP);
+        request.setMethod("POST");
+        log.info("login - [START]");
+        response = sender.send(request);
+
+        System.out.println(response.getData());
+
+        int otpId = JsonParser.getIntValue(response.getData(), "otpId");
+        printCookies(uri);
+        log.info("login - [{}]", response.getResponseCode());
+        log.info("response headers: {}", response.getHeaderFields());
+        //end
+
+        //enter login code
+        request.setLink("https://www.ozon.ru/api/composer-api.bx/_action/fastEntryV3");
+
+        System.out.print("Code for " + "79526453542" + ": ");
+        Scanner scanner = new Scanner(System.in);
+        String smsCode = scanner.nextLine();
+
+        json = "{\"phone\":\"" + "79526453542" + "\",\"authRequestToken\":\"" + authRequestToken + "\",\"otpId\":" + otpId + ",\"isAlphaNumericOtp\":false,\"hideHints\":false,\"csrfToken\":\"" + csrfToken + "\",\"isOtpExpired\":false,\"isAdsAllowed\":true,\"otp\":\"" + smsCode + "\"}";
+        log.info("sendCode - [START]");
+        response = sender.send(request);
+        printCookies(uri);
+        log.info("sendCode - [{}]", response.getResponseCode());
+        log.info("response headers: {}", response.getHeaderFields());
     }
 
     public void printCookies(URI uri) {

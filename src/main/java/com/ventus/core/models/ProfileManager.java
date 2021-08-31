@@ -8,12 +8,16 @@ import java.util.List;
 public class ProfileManager {
     private final LinkedList<IProfile> profiles;
 
-    public ProfileManager(List<IProfile> profiles){
+    public ProfileManager(List<IProfile> profiles) {
         this.profiles = new LinkedList<>(profiles);
     }
 
-    public IProfile getProfile(){
-        if(profiles.isEmpty()) return null;
+    public ProfileManager() {
+        this.profiles = new LinkedList<>();
+    }
+
+    public IProfile getProfile() {
+        if (profiles.isEmpty()) return null;
         return profiles.pop();
     }
 }

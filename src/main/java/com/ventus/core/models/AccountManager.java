@@ -12,6 +12,10 @@ public class AccountManager {
         this.accounts = new LinkedList<>(accounts);
     }
 
+    public AccountManager(){
+        this.accounts = new LinkedList<>();
+    }
+
     public IAccount getAccount(){
         if(accounts.isEmpty()) return null;
         return accounts.pop();

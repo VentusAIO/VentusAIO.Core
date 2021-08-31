@@ -50,8 +50,14 @@ public interface ITaskGroup {
         ProxyManager proxyManager = new ProxyManager();
         proxyManager.addProxyList(getProxies());
 
-        ProfileManager profileManager = new ProfileManager(getProfiles());
-        AccountManager accountManager = new AccountManager(getAccounts());
+        ProfileManager profileManager = null;
+        AccountManager accountManager = null;
+        if (getProfiles() != null) {
+            profileManager = new ProfileManager(getProfiles());
+        }
+        if (getAccounts() != null) {
+            accountManager = new AccountManager(getAccounts());
+        }
 
 
         for (int i = 0; i < getAmount(); i++) {
@@ -59,9 +65,9 @@ public interface ITaskGroup {
 
 
             task.configureProxy(proxyManager);
-            task.setProfileManger(profileManager);
-            task.setAccountManger(accountManager);
 
+            if(profileManager != null) task.setProfileManger(profileManager);
+            if(accountManager != null) task.setAccountManger(accountManager);
 
             task.setItemId(getItemId());
             task.setFilter(getFilter());

@@ -35,8 +35,8 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
 
     @Getter
     StringBuilder cookieStringBuilder;
-    private ProfileManager profileManager;
-    private AccountManager accountManager;
+    private ProfileManager profileManager = new ProfileManager();
+    private AccountManager accountManager = new AccountManager();
 
     protected Sender sender = new Sender();
 

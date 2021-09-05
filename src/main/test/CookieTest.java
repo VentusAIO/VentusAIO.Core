@@ -28,7 +28,7 @@ public class CookieTest {
     public void start() {
         System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
         System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
-        IProxy proxy = new Proxy("176.53.166.42", 30001, "savvasiry_gmail_com", "b001060fbf");
+        IProxy proxy = new Proxy("185.5.250.93", 32799, "MflHedSurF", "zoIFHlnqO5");
         proxy.setStatus(ProxyStatus.VALID);
         sender = new Sender(proxy);
 

@@ -12,19 +12,20 @@ import java.time.Duration;
 
 @Slf4j
 public class ProxyChecker {
-    public static ProxyStatus check(IProxy proxy, String url) {
-        HttpClient httpClient = HttpClient.newBuilder()
-                .proxy(ProxySelector.of(new InetSocketAddress(proxy.getHost(), proxy.getPort())))
-                .authenticator(new Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(
-                                proxy.getLogin(),
-                                proxy.getPass().toCharArray()
-                        );
-                    }
-                })
-                .build();
+    static {
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+    }
+
+    /**
+     * Deprecated method, use {@link #checkProxy(IProxy, String)} instead.
+     * @param iProxy proxy to check
+     * @param url destination address
+     * @return ProxyStatus
+     */
+    @Deprecated()
+    public static ProxyStatus check(IProxy iProxy, String url) {
+        HttpClient httpClient = getHttpClient(iProxy);
 
         HttpRequest httpRequest = HttpRequest
                 .newBuilder()
@@ -39,10 +40,10 @@ public class ProxyChecker {
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             result = (httpResponse.statusCode() == 200 || httpResponse.statusCode() == 302) ? ProxyStatus.VALID : ProxyStatus.INVALID;
             statusCode = httpResponse.statusCode();
-            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", proxy.getHost(), result, statusCode, url));
+            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", iProxy.getHost(), result, statusCode, url));
         } catch (IOException e) {
             result = ProxyStatus.INVALID;
-            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", proxy.getHost(), result, statusCode, url));
+            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", iProxy.getHost(), result, statusCode, url));
         } catch (InterruptedException e) {
             result = ProxyStatus.INVALID;
             log.info("Thread was interrupted caused by: " + e.getMessage());
@@ -50,16 +51,16 @@ public class ProxyChecker {
         return result;
     }
 
+
+    /**
+     * Deprecated method, use {@link #checkProxy(IProxy, String)} instead.
+     * @param iProxy proxy to check
+     * @param url destination address
+     * @return String with time spent to do one request to destination address, formatted {@code "{%d} (ms)"}.
+     */
+    @Deprecated()
     public static String checkRequestTime(IProxy iProxy, String url) {
-        HttpClient httpClient = HttpClient.newBuilder()
-                .proxy(ProxySelector.of(new InetSocketAddress(iProxy.getHost(), iProxy.getPort())))
-                .authenticator(new Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(iProxy.getLogin(), iProxy.getPass().toCharArray());
-                    }
-                })
-                .build();
+        HttpClient httpClient = getHttpClient(iProxy);
 
         HttpRequest httpRequest = HttpRequest
                 .newBuilder()
@@ -78,7 +79,58 @@ public class ProxyChecker {
         }
         return result;
     }
-//    public static List<IProxy> check(List<IProxy> proxyPairs, String host) {
+
+    /**
+     * Checks {@link ProxyStatus} and proxy speed
+     * @param iProxy proxy to check
+     * @param url destination address
+     * @return {@link Pair} that contains {@link ProxyStatus} and proxy speed
+     */
+    public static Pair checkProxy(IProxy iProxy, String url) {
+        HttpClient httpClient = getHttpClient(iProxy);
+
+        HttpRequest httpRequest = HttpRequest
+                .newBuilder()
+                .GET()
+                .timeout(Duration.ofMillis(10_000))
+                .uri(URI.create(url))
+                .build();
+
+        Pair result = new Pair();
+        String defaultSpeed = "-1 (ms)";
+        int statusCode = -1;
+        try {
+            long start = System.currentTimeMillis();
+            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            result.proxyStatus = (httpResponse.statusCode() == 200 || httpResponse.statusCode() == 302) ? ProxyStatus.VALID : ProxyStatus.INVALID;
+            result.proxySpeed = String.format("%d (ms)", System.currentTimeMillis() - start);
+            statusCode = httpResponse.statusCode();
+            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", iProxy.getHost(), result, statusCode, url));
+        } catch (IOException e) {
+            result.proxyStatus = ProxyStatus.INVALID;
+            result.proxySpeed = defaultSpeed;
+            log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", iProxy.getHost(), result, statusCode, url));
+        } catch (InterruptedException e) {
+            result.proxyStatus = ProxyStatus.INVALID;
+            result.proxySpeed = defaultSpeed;
+            log.info("Thread was interrupted caused by: " + e.getMessage());
+        }
+        return result;
+    }
+
+    private static HttpClient getHttpClient(IProxy iProxy) {
+        return HttpClient.newBuilder()
+                .proxy(ProxySelector.of(new InetSocketAddress(iProxy.getHost(), iProxy.getPort())))
+                .authenticator(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(iProxy.getLogin(), iProxy.getPass().toCharArray());
+                    }
+                })
+                .build();
+    }
+
+    //    public static List<IProxy> check(List<IProxy> proxyPairs, String host) {
 //        ExecutorService executorService = Executors.newCachedThreadPool();
 //        for (IProxy proxyPair : proxyPairs) {
 //            executorService.submit(new ProxyCheckerTask(proxyPair, host));
@@ -91,4 +143,16 @@ public class ProxyChecker {
 //        }
 //        return proxyPairs;
 //    }
+    public static class Pair {
+        ProxyStatus proxyStatus;
+        String proxySpeed;
+
+        @Override
+        public String toString() {
+            return "Pair{" +
+                    "proxyStatus=" + proxyStatus +
+                    ", proxySpeed='" + proxySpeed + '\'' +
+                    '}';
+        }
+    }
 }

@@ -37,5 +37,24 @@ public class ProxyCheckerTest {
 //        //then
 //        ProxyChecker.check(proxies, "https://www.ozon.ru");
 //        //penis
+
 //    }
+    @Test
+    public void shouldGetProxyStatus() {
+        IProxy proxy = new Proxy("185.5.250.93", 32799, "MflHedSurF", "zoIFHlnqO5");
+        System.out.println(ProxyChecker.check(proxy, "https://www.adidas.ru"));
+    }
+
+    @Test
+    public void shouldGetProxySpeed() {
+//        185.5.250.93:32799:MflHedSurF:zoIFHlnqO5
+        IProxy proxy = new Proxy("185.5.250.93", 32799, "MflHedSurF", "zoIFHlnqO5");
+        System.out.println(ProxyChecker.checkRequestTime(proxy, "https://www.adidas.ru"));
+    }
+
+    @Test
+    public void shouldGetProxySpeedAndProxyStatus() {
+        IProxy proxy = new Proxy("185.5.250.93", 32799, "MflHedSurF", "zoIFHlnqO5");
+        System.out.println(ProxyChecker.checkProxy(proxy, "https://www.adidas.ru"));
+    }
 }

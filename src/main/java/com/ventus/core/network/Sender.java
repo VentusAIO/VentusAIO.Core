@@ -174,8 +174,7 @@ public class Sender implements ISender {
 
             }
 
-//            if (!isDoIn.equals(InputStreamTypes.NONE)) {
-            if (!encoding.equalsIgnoreCase("none")){
+            if (!isDoIn.equals(InputStreamTypes.NONE)) {
                 try {
                     BufferedReader in;
                     if (encoding.equalsIgnoreCase("gzip")) {

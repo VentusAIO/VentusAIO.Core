@@ -5,6 +5,7 @@ import com.ventus.core.network.Request;
 import com.ventus.core.network.Response;
 import com.ventus.core.network.Sender;
 import com.ventus.core.proxy.ProxyStatus;
+import com.ventus.core.util.JsonParser;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
@@ -123,6 +124,13 @@ public class CookieTest {
 
         Assert.assertEquals(200, response.getResponseCode());
         log.info("availability2 - " + response.getResponseCode());
+
+        // get payment
+//        String link = "https://www.adidas.ru/api/checkout/baskets/" + basket_id + "/payment_methods";
+//        log.info("getPayment - [START]");
+//        response = send("GET", link, "", patchAdidasHeaders(AdidasConfig.getAdidas()), InputStreamTypes.GZIP);
+//        checkoutId = JsonParser.getValue(response.getData(), "checkoutId");
+//        log.info("getPayment - [OK]");
     }
 
     @Test

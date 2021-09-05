@@ -164,16 +164,36 @@ public class Sender implements ISender {
 
             isDoIn = request.getDoIn();
 
-            if (!isDoIn.equals(InputStreamTypes.NONE)) {
+            String encoding = "none";
+            try {
+                List<String> encodings = httpResponse.headers().map().get("content-encoding");
+                if (!encodings.isEmpty()){
+                    encoding = encodings.get(0);
+                }
+            } catch (NullPointerException ignored) {
+
+            }
+
+//            if (!isDoIn.equals(InputStreamTypes.NONE)) {
+            if (!encoding.equalsIgnoreCase("none")){
                 try {
                     BufferedReader in;
-                    if (isDoIn == InputStreamTypes.BR) {
-                        in = new BufferedReader(new InputStreamReader(new BrotliInputStream(httpResponse.body())));
-                    } else if (isDoIn == InputStreamTypes.GZIP) {
+                    if (encoding.equalsIgnoreCase("gzip")) {
                         in = new BufferedReader(new InputStreamReader(new GZIPInputStream(httpResponse.body())));
+                    } else if (encoding.equalsIgnoreCase("br")) {
+                        in = new BufferedReader(new InputStreamReader(new BrotliInputStream(httpResponse.body())));
                     } else {
                         in = new BufferedReader(new InputStreamReader(httpResponse.body()));
                     }
+
+//                    if (isDoIn == InputStreamTypes.BR) {
+//                        in = new BufferedReader(new InputStreamReader(new BrotliInputStream(httpResponse.body())));
+//                    } else if (isDoIn == InputStreamTypes.GZIP) {
+//                        in = new BufferedReader(new InputStreamReader(new GZIPInputStream(httpResponse.body())));
+//                    } else {
+//                        in = new BufferedReader(new InputStreamReader(httpResponse.body()));
+//                    }
+
                     String inputLine;
                     StringBuilder res = new StringBuilder();
                     while ((inputLine = in.readLine()) != null) {

@@ -87,7 +87,7 @@ public class ProxyChecker {
      * @param url destination address
      * @return {@link Pair} that contains {@link ProxyStatus} and proxy speed
      */
-    public static Pair checkProxy(IProxy iProxy, String url) {
+    public static Pair<ProxyStatus, String> checkProxy(IProxy iProxy, String url) {
         HttpClient httpClient = getHttpClient(iProxy);
 
         HttpRequest httpRequest = HttpRequest

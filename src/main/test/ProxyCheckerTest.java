@@ -54,7 +54,8 @@ public class ProxyCheckerTest {
 
     @Test
     public void shouldGetProxySpeedAndProxyStatus() {
-        IProxy proxy = new Proxy("185.5.250.93", 32799, "MflHedSurF", "zoIFHlnqO5");
-        System.out.println(ProxyChecker.checkProxy(proxy, "https://www.adidas.ru"));
+//        45.142.252.130:1050:KaHNc9:K5bfOPvyXP
+        IProxy proxy = new Proxy("45.142.252.130", 1050, "KaHNc9", "K5bfOPvyXP");
+        System.out.println(ProxyChecker.checkProxy(proxy, "https://www.adidas.ru/yeezy"));
     }
 }

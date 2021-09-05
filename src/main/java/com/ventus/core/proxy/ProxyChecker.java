@@ -1,6 +1,7 @@
 package com.ventus.core.proxy;
 
 import com.ventus.core.interfaces.IProxy;
+import com.ventus.core.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -96,23 +97,21 @@ public class ProxyChecker {
                 .uri(URI.create(url))
                 .build();
 
-        Pair result = new Pair();
+        Pair<ProxyStatus, String> result;
         String defaultSpeed = "-1 (ms)";
         int statusCode = -1;
         try {
             long start = System.currentTimeMillis();
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            result.proxyStatus = (httpResponse.statusCode() == 200 || httpResponse.statusCode() == 302) ? ProxyStatus.VALID : ProxyStatus.INVALID;
-            result.proxySpeed = String.format("%d (ms)", System.currentTimeMillis() - start);
+            result = Pair.of((httpResponse.statusCode() == 200 || httpResponse.statusCode() == 302) ? ProxyStatus.VALID : ProxyStatus.INVALID,
+                    String.format("%d (ms)", System.currentTimeMillis() - start));
             statusCode = httpResponse.statusCode();
             log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", iProxy.getHost(), result, statusCode, url));
         } catch (IOException e) {
-            result.proxyStatus = ProxyStatus.INVALID;
-            result.proxySpeed = defaultSpeed;
+            result = Pair.of(ProxyStatus.INVALID, defaultSpeed);
             log.info(String.format("Proxy: {%s} -- %s [%d], for host: %s", iProxy.getHost(), result, statusCode, url));
         } catch (InterruptedException e) {
-            result.proxyStatus = ProxyStatus.INVALID;
-            result.proxySpeed = defaultSpeed;
+            result = Pair.of(ProxyStatus.INVALID, defaultSpeed);
             log.info("Thread was interrupted caused by: " + e.getMessage());
         }
         return result;
@@ -143,16 +142,4 @@ public class ProxyChecker {
 //        }
 //        return proxyPairs;
 //    }
-    public static class Pair {
-        ProxyStatus proxyStatus;
-        String proxySpeed;
-
-        @Override
-        public String toString() {
-            return "Pair{" +
-                    "proxyStatus=" + proxyStatus +
-                    ", proxySpeed='" + proxySpeed + '\'' +
-                    '}';
-        }
-    }
 }

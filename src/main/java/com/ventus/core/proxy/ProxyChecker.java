@@ -51,6 +51,35 @@ public class ProxyChecker {
         }
         return result;
     }
+
+    public static String checkRequestTime(IProxy iProxy, String url) {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .proxy(ProxySelector.of(new InetSocketAddress(iProxy.getHost(), iProxy.getPort())))
+                .authenticator(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(iProxy.getLogin(), iProxy.getPass().toCharArray());
+                    }
+                })
+                .build();
+
+        HttpRequest httpRequest = HttpRequest
+                .newBuilder()
+                .GET()
+                .timeout(Duration.ofMillis(10_000))
+                .uri(URI.create(url))
+                .build();
+
+        String result = "-1 (ms)";
+        try {
+            long start = System.currentTimeMillis();
+            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            result = String.format("%d (ms)", System.currentTimeMillis() - start);
+        } catch (IOException | InterruptedException e) {
+            log.info("Thread was interrupted caused by: " + e.getMessage());
+        }
+        return result;
+    }
 //    public static List<IProxy> check(List<IProxy> proxyPairs, String host) {
 //        ExecutorService executorService = Executors.newCachedThreadPool();
 //        for (IProxy proxyPair : proxyPairs) {

@@ -35,6 +35,10 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     protected String[] sizes;
     @Getter
     StringBuilder cookieStringBuilder;
+
+    StringBuilder user_logs = new StringBuilder();
+    StringBuilder admin_logs = new StringBuilder();
+
     private ProfileManager profileManager = new ProfileManager();
     private AccountManager accountManager = new AccountManager();
 
@@ -137,5 +141,19 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
 
     public void setAccountManger(AccountManager accountManager){
         this.accountManager = accountManager;
+    }
+
+    /* Logs */
+    void ulog(String message) {
+        user_logs.append(message).append("\n");
+    };
+    void log(String message) {
+        admin_logs.append(message).append("\n");
+    };
+    String getUserLogs() {
+        return user_logs.toString();
+    }
+    String getAdminLogs() {
+        return user_logs.toString();
     }
 }

@@ -6,7 +6,7 @@
 
     <groupId>com.ventus.core</groupId>
     <artifactId>VentusAIO.Core</artifactId>
-    <version>0.0.4.2</version>
+    <version>0.0.4.6</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -47,6 +47,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.5</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/club.minnced/discord-webhooks -->
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>discord-webhooks</artifactId>
+            <version>0.5.7</version>
         </dependency>
     </dependencies>
 

@@ -8,14 +8,15 @@ import java.util.concurrent.Future;
 
 @Data
 public class Task implements ITask {
-    private String status;
+    private TaskStatus status;
+    private boolean checked = false;
     private String message;
     private StringBuilder logs;
     private Future<Map<?, ?>> future;
 
 
     public Task() {
-        this.status = "run";
+        this.status = TaskStatus.IN_PROGRESS;
         this.message = "null";
         this.logs = new StringBuilder();
     }

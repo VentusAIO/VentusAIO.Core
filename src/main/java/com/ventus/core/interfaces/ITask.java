@@ -1,14 +1,20 @@
 package com.ventus.core.interfaces;
 
+import com.ventus.core.models.TaskStatus;
+
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 
 public interface ITask {
-    String getStatus();
+    TaskStatus getStatus();
 
-    void setStatus(String status);
+    void setStatus(TaskStatus status);
+
+    boolean isChecked();
+
+    void setChecked(boolean checked);
 
     String getMessage();
 
@@ -22,23 +28,23 @@ public interface ITask {
 
     default void update() throws InterruptedException {
         if (getFuture().isCancelled()) {
-            setStatus("cancel");
+            setStatus(TaskStatus.CANCEL);
         }
-        if (getStatus().equals("run") && getFuture().isDone()) {
+        if (getStatus().equals(TaskStatus.IN_PROGRESS) && getFuture().isDone()) {
             try {
-                Map<String, String> map = (Map<String, String>) getFuture().get();
+                Map<String, Object> map = (Map<String, Object>) getFuture().get();
                 if (map.get("status") != null) {
-                    setStatus(map.get("status"));
+                    setStatus((TaskStatus) map.get("status"));
                 } else {
-                    setStatus("null");
+                    setStatus(TaskStatus.ERROR);
                 }
                 if (map.get("message") != null) {
-                    setMessage(map.get("message"));
+                    setMessage((String) map.get("message"));
                 } else {
                     setMessage("null");
                 }
             } catch (ExecutionException e) {
-                setStatus("cancel");
+                setStatus(TaskStatus.CANCEL);
             }
         }
     }

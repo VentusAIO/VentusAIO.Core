@@ -32,7 +32,7 @@ public class JsonParser {
             }
         } catch (Exception e) {
             log.error(e.getMessage());
-//            e.printStackTrace();
+            log.error("Can't find subString " + subStr + " in FullString:\n" + fullStr);
         }
         return stringBuilder.toString();
     }

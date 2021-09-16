@@ -6,6 +6,7 @@ import com.ventus.core.interfaces.IProfile;
 import com.ventus.core.models.Account;
 import com.ventus.core.models.AccountManager;
 import com.ventus.core.models.ProfileManager;
+import com.ventus.core.models.TaskStatus;
 import com.ventus.core.network.*;
 import com.ventus.core.proxy.ProxyManager;
 import lombok.Getter;
@@ -103,6 +104,13 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     @Override
     public abstract Map<?, ?> call();
 
+    protected Map<?, ?> callBackStatus(TaskStatus status, String message){
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", status);
+        map.put("message", message);
+        return map;
+    }
+
     public synchronized IProfile getProfile() {
         IProfile profile = profileManager.getProfile();
         if (profile == null) throw new NoSuchElementException("list is empty");
@@ -114,6 +122,8 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
         if (account == null) throw new NoSuchElementException("list is empty");
         return account;
     }
+
+
 
     public void setProfileManger(ProfileManager profileManager) {
         this.profileManager = profileManager;

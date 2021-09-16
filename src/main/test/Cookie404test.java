@@ -1,4 +1,3 @@
-import com.ventus.core.exceptions.Not200CodeException;
 import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.models.Proxy;
 import com.ventus.core.network.*;
@@ -31,8 +30,6 @@ public class Cookie404test {
     @SneakyThrows
     public void start() {
         adidasCookieStore = new PersistentCookieStore("login", "path.txt", new URI("https://www.adidas.ru"));
-//        ozonCookieStore = new PersistentCookieStore("", "cookies.txt", URI.create("https://www.ozon.ru"));
-//        cookieStore = new CookieManager().getCookieStore();
         request = new Request();
 
         //Настройка прокси
@@ -89,7 +86,6 @@ public class Cookie404test {
     }
 
     public void cookie404Test(Sender sender) throws URISyntaxException {
-        String itemId = "GZ9112";
         URI uri = new URI("https://www.adidas.ru/");
 
         //get right geo_ip cookie:
@@ -101,13 +97,11 @@ public class Cookie404test {
         Response response = sender.send(request);
         printCookies(uri);
         log.info("getting right cookies - [{}]", response.getResponseCode());
-//        Assert.assertEquals(200, response.getResponseCode());
+        Assert.assertEquals(200, response.getResponseCode());
         //end
 
 //        availability1
-        String availabilityLink = "https://www.adidas.ru/api/products/" +
-                itemId + "/availability";
-        request.setLink(availabilityLink);
+        request.setLink(uri.toString());
         request.setRequestProperties(asyncDataHeaders);
         request.setMethod("GET");
         request.setDoIn(InputStreamTypes.NONE);
@@ -118,7 +112,7 @@ public class Cookie404test {
         printCookies(uri);
 
         log.info("availability1 - " + response1.getResponseCode());
-//        Assert.assertEquals(response1.getResponseCode(), 200);
+        Assert.assertEquals(response1.getResponseCode(), 200);
 //        end
 
 //        404
@@ -131,11 +125,11 @@ public class Cookie404test {
         Response response2 = sender.send(request);
         printCookies(uri);
         log.info("link404 - [{}]", response2.getResponseCode());
-//        Assert.assertEquals(404, response2.getResponseCode());
+        Assert.assertEquals(404, response2.getResponseCode());
 //      end
 
 //      availability2
-        request.setLink(availabilityLink);
+        request.setLink(uri.toString());
         request.setRequestProperties(asyncDataHeaders);
         request.setDoIn(InputStreamTypes.GZIP);
         request.setMethod("GET");
@@ -144,18 +138,8 @@ public class Cookie404test {
         log.info("availability2 - [START]");
         Response response3 = sender.send(request);
         printCookies(uri);
-//        Assert.assertEquals(200, response3.getResponseCode());
+        Assert.assertEquals(200, response3.getResponseCode());
         log.info("availability2 - [{}]", response3.getResponseCode());
-//      end
-
-        //ozon check after adidas
-//        log.info("ozon check - [START]");
-//        URI uri2 = URI.create("https://www.ozon.ru");
-//        request.setLink("https://www.ozon.ru");
-//        Response response4 = sender.send(request);
-//        printCookies(uri2);
-//        log.info("ozon check - [{}]", response4.getResponseCode());
-        //end
     }
 
     @Test

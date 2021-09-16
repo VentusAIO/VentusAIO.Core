@@ -129,6 +129,7 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     };
     public void log(String message) {
         admin_logs.append(message).append("\n");
+        log.info(message);
     };
     public String getUserLogs() {
         return user_logs.toString();

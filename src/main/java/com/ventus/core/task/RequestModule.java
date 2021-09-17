@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Callable;
 
@@ -45,7 +47,7 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
     private ProfileManager profileManager = new ProfileManager();
     private AccountManager accountManager = new AccountManager();
 
-    protected Sender sender = new Sender();
+    protected Sender sender = new Sender(new PersistentCookieStore());
 
 
     /**
@@ -123,8 +125,6 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
         return account;
     }
 
-
-
     public void setProfileManger(ProfileManager profileManager) {
         this.profileManager = profileManager;
     }
@@ -135,7 +135,7 @@ abstract public class RequestModule implements Callable<Map<?, ?>> {
 
     /* Logs */
     public void ulog(String message) {
-        user_logs.append(message).append("\n");
+        user_logs.append(LocalDateTime.now()).append("###").append(message).append("\n");
     };
     public void log(String message) {
         admin_logs.append(message).append("\n");

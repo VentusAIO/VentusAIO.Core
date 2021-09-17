@@ -1,11 +1,7 @@
 import com.ventus.core.interfaces.IProxy;
 import com.ventus.core.models.Proxy;
-import com.ventus.core.network.InputStreamTypes;
-import com.ventus.core.network.Request;
-import com.ventus.core.network.Response;
-import com.ventus.core.network.Sender;
+import com.ventus.core.network.*;
 import com.ventus.core.proxy.ProxyStatus;
-import com.ventus.core.util.JsonParser;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
@@ -31,7 +27,7 @@ public class CookieTest {
         System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
         IProxy proxy = new Proxy("185.5.250.93", 32799, "MflHedSurF", "zoIFHlnqO5");
         proxy.setStatus(ProxyStatus.VALID);
-        sender = new Sender(proxy);
+        sender = new Sender(proxy, new PersistentCookieStore());
 
         request = new Request();
 

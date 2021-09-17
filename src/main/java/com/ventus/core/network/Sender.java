@@ -79,15 +79,24 @@ public class Sender implements ISender {
     private CookieManager cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
 
 
-    public Sender(IProxy proxy) {
+//    public Sender(IProxy proxy) {
+//        ProxyManager proxyManager = new ProxyManager();
+//        proxyManager.addProxyList(Collections.singletonList(proxy));
+//        changeProxy(proxyManager.getProxy());
+//        setProxyManager(proxyManager);
+//    }
+
+//    public Sender() {
+//        httpClient = HttpClient.newHttpClient();
+//    }
+
+    public Sender(IProxy proxy, CookieStore cookieStore){
+        this.cookieStore = cookieStore;
+        this.cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
         ProxyManager proxyManager = new ProxyManager();
         proxyManager.addProxyList(Collections.singletonList(proxy));
         changeProxy(proxyManager.getProxy());
         setProxyManager(proxyManager);
-    }
-
-    public Sender() {
-        httpClient = HttpClient.newHttpClient();
     }
 
     public Sender(CookieStore cookieStore){
@@ -96,11 +105,13 @@ public class Sender implements ISender {
         httpClient = HttpClient.newBuilder().cookieHandler(cookieManager).followRedirects(HttpClient.Redirect.ALWAYS).build();
     }
 
+    @Deprecated
     public void changeProxy(IProxy proxy) {
         this.setProxy(proxy);
         httpClient = HttpClient.newBuilder()
                 .cookieHandler(cookieManager)
                 .proxy(ProxySelector.of(new InetSocketAddress(proxy.getHost(), proxy.getPort())))
+                .followRedirects(HttpClient.Redirect.ALWAYS)
                 .authenticator(new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {

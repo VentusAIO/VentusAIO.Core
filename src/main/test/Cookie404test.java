@@ -73,7 +73,7 @@ public class Cookie404test {
     @Test
     public void cookie404TestLocalHost() throws URISyntaxException {
         sender = new Sender(adidasCookieStore);
-        cookie404Test(sender);
+        cookie404Test();
     }
 
 //    @Test
@@ -82,10 +82,10 @@ public class Cookie404test {
         proxy.setStatus(ProxyStatus.VALID);
         sender = new Sender(adidasCookieStore);
         sender.changeProxy(proxy);
-        cookie404Test(sender);
+        cookie404Test();
     }
 
-    public void cookie404Test(Sender sender) throws URISyntaxException {
+    public void cookie404Test() throws URISyntaxException {
         URI uri = new URI("https://www.adidas.ru/");
 
         //get right geo_ip cookie:

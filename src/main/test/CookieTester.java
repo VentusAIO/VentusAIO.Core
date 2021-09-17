@@ -32,9 +32,9 @@ class CookieTester implements Runnable {
             server.createContext("/test2", new CheckCookie("test1", "1630915178~0~69b3d5a28ae9e6045244dcbb230011b9al6d5226dF207b9b7364F#6c318e2008"));
             server.createContext("/test3", new ThirdTest());
             server.createContext("/test4", new CheckCookie("test1", "qw21321eqe12e12"));
-            server.createContext("/test5", new SetCookie(418, "test1=newcookie; Expires=Mon, 30 Sep 2021 08:01:38 GMT; Path=/; domain=localhost"));
+            server.createContext("/test5", new SetCookie(418, "test1=newcookie; Expires=Mon, 27 Sep 2021 08:01:38 GMT; Path=/; domain=localhost"));
             server.createContext("/test6", new CheckCookie("test1", "newcookie"));
-            server.createContext("/test7", new SetCookie(418, "test1=newcookie2; Expires=Mon, 30 Sep 2021 08:01:38 GMT; Path=/; domain=localhost"));
+            server.createContext("/test7", new SetCookie(418, "test1=newcookie2; Expires=Mon, 27 Sep 2021 08:01:38 GMT; Path=/; domain=localhost"));
             server.createContext("/test8", new CheckCookie("test1", "newcookie2"));
             server.createContext("/test9", new SetCookie(418, "test1=pls_remove_me; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; domain=localhost"));
             server.createContext("/test10", new CheckCookie("test1", "pls_remove_me"));
@@ -91,7 +91,7 @@ class CookieTester implements Runnable {
         @Override
         public void handle(HttpExchange t) throws IOException {
             String response = "ok";
-            t.getResponseHeaders().add("set-cookie", "test1=qw21321eqe12e12; Expires=Mon, 21 Sep 2021 08:01:38 GMT; Path=/; domain=localhost");
+            t.getResponseHeaders().add("set-cookie", "test1=qw21321eqe12e12; Expires=Tue, 21 Sep 2021 12:01:38 GMT; Path=/; domain=localhost");
             t.getResponseHeaders().add("location", "http://localhost:32151/test3");
             if (isRedirect) {
                 t.sendResponseHeaders(418, response.length());

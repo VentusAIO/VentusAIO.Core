@@ -44,7 +44,7 @@ public class CookieTestWithServer {
         log.info("test 2");
         Assert.assertEquals(200, send("http://localhost:32151/test2").getResponseCode());
         log.info("test 3");
-        Assert.assertEquals(307, send("http://localhost:32151/test3").getResponseCode());
+        Assert.assertEquals(418, send("http://localhost:32151/test3").getResponseCode());
         log.info("test 4");
         Assert.assertEquals(200, send("http://localhost:32151/test4").getResponseCode());
         log.info("test 5");

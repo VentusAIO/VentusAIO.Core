@@ -93,7 +93,7 @@ public class Sender implements ISender {
     public Sender(CookieStore cookieStore){
         this.cookieStore = cookieStore;
         this.cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
-        httpClient = HttpClient.newBuilder().cookieHandler(cookieManager).build();
+        httpClient = HttpClient.newBuilder().cookieHandler(cookieManager).followRedirects(HttpClient.Redirect.ALWAYS).build();
     }
 
     public void changeProxy(IProxy proxy) {

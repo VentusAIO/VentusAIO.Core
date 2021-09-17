@@ -49,9 +49,13 @@ public class CookieTestWithServer {
 
     public void checkCookie() {
         Assert.assertEquals(418, send("http://localhost:32151/test1").getResponseCode());
+        log.info("penis 1");
         Assert.assertEquals(200, send("http://localhost:32151/test2").getResponseCode());
+        log.info("penis 2");
         Assert.assertEquals(418, send("http://localhost:32151/test3").getResponseCode());
+        log.info("penis 3");
         Assert.assertEquals(403, send("http://localhost:32151/test4").getResponseCode());
+        log.info("penis 4");
     }
 
     private Response send(String link){
@@ -70,8 +74,8 @@ public class CookieTestWithServer {
                 HttpServer server = HttpServer.create(new InetSocketAddress(32151), 0);
                 server.createContext("/test1", new FirstTest());
                 server.createContext("/test2", new SecondTest());
-//                server.createContext("/test3", new ThirdTest());
-//                server.createContext("/test4", new FourTest());
+                server.createContext("/test3", new ThirdTest());
+                server.createContext("/test4", new FourTest());
                 server.setExecutor(executorservice);
                 server.start();
             } catch (IOException e) {
@@ -104,7 +108,7 @@ public class CookieTestWithServer {
             @Override
             public void handle(HttpExchange t) throws IOException {
                 String response = "ok";
-                t.getResponseHeaders().add("set-cookie", "test1=1630915178~0~69b3d5a28ae9e6045244dcbb230011b9al6d5226dF207b9b7364F#6c318e2008; Expires-Mon, 20 Sep 2021 08:01:38 GMT; Path=/; domain=localhost");
+                t.getResponseHeaders().add("set-cookie", "test1=1630915178~0~69b3d5a28ae9e6045244dcbb230011b9al6d5226dF207b9b7364F#6c318e2008; Expires=Mon, 20 Sep 2021 08:01:38 GMT; Path=/; domain=localhost");
                 t.sendResponseHeaders(418, response.length());
                 OutputStream os = t.getResponseBody();
                 os.write(response.getBytes());
@@ -137,7 +141,8 @@ public class CookieTestWithServer {
             @Override
             public void handle(HttpExchange t) throws IOException {
                 String response = "ok";
-                t.getResponseHeaders().add("set-cookie", "test1=qw21321eqe12e12; Expires-Mon, 6 Sep 2021 08:01:38 GMT; Path=/; domain=localhost");
+                String cookie = "test1=qw21321eqe12e12; Expires=Mon, 10 Sep 2021 08:01:38 GMT; Path=/; domain=localhost";
+                t.getResponseHeaders().add("set-cookie", cookie);
                 t.sendResponseHeaders(418, response.length());
                 OutputStream os = t.getResponseBody();
                 os.write(response.getBytes());

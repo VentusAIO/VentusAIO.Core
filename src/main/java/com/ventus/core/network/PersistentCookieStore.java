@@ -153,11 +153,11 @@ public class PersistentCookieStore implements CookieStore, Runnable {
         for (HttpCookie savedCookie : httpCookies) {
             if (savedCookie.hasExpired()) remove(uri, savedCookie);
             if (savedCookie.equals(cookie)) {
-                if (savedCookie.getMaxAge() == -1) {
-                    log.info(String.format("ADDED(inside): %s|%s --> %s == %s(%d)", uri, cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getMaxAge()));
-                    store.add(uri, cookie);
-                    updated = true;
-                }
+//                if (savedCookie.getMaxAge() == -1) {
+                log.info(String.format("ADDED(inside): %s|%s --> %s == %s(%d)", uri, cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getMaxAge()));
+                store.add(uri, cookie);
+                updated = true;
+//                }
             }
         }
         if (!updated && !httpCookies.contains(cookie)){

@@ -13,11 +13,15 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-class Http implements Runnable {
-    private int count = 0;
+class CookieTester implements Runnable {
     private final ExecutorService executorservice = Executors.newSingleThreadExecutor();
 
-    public Http() {
+    public static void main(String[] args) {
+        CookieTester http = new CookieTester();
+        http.run();
+    }
+
+    public CookieTester() {
     }
 
     @Override
@@ -82,16 +86,19 @@ class Http implements Runnable {
         }
     }
 
-    private class ThirdTest implements HttpHandler {
+    private static class ThirdTest implements HttpHandler {
+        private boolean isRedirect = false;
         @Override
         public void handle(HttpExchange t) throws IOException {
             String response = "ok";
             t.getResponseHeaders().add("set-cookie", "test1=qw21321eqe12e12; Expires=Mon, 21 Sep 2021 08:01:38 GMT; Path=/; domain=localhost");
             t.getResponseHeaders().add("location", "http://localhost:32151/test3");
-            if (count++ > 1) {
+            if (isRedirect) {
+                t.sendResponseHeaders(418, response.length());
+            } else {
                 t.sendResponseHeaders(307, response.length());
-                count = 0;
-            } else t.sendResponseHeaders(418, response.length());
+            }
+            isRedirect = !isRedirect;
             OutputStream os = t.getResponseBody();
             os.write(response.getBytes());
             os.close();

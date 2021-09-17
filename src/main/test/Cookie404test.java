@@ -29,7 +29,7 @@ public class Cookie404test {
     @Before
     @SneakyThrows
     public void start() {
-        adidasCookieStore = new PersistentCookieStore("login", "path.txt", new URI("https://www.adidas.ru"));
+        adidasCookieStore = new PersistentCookieStore();
         request = new Request();
 
         //Настройка прокси
